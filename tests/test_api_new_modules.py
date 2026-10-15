@@ -194,8 +194,10 @@ def test_attrition_lens_executive_dashboard(client):
     # 1. Identity & Company Introduction
     assert "Attrition Lens" in html
     assert "SnackRush Enterprise Solutions" in html
+    assert "Moving fast. Powered by people." in html
+    assert "Fictional company · Workforce analytics case study" in html
     assert "quick-commerce and food-delivery" in html
-    assert "analyzes employee attrition and supports retention decisions" in html
+    assert "Explore workforce patterns across SnackRush" in html
 
     # 2. Four Responsive KPI Cards
     assert "kpi-headcount" in html

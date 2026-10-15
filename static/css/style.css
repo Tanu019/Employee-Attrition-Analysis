@@ -236,11 +236,22 @@ body {
   transition: color var(--transition-fast);
 }
 
+.brand-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--accent-copper);
+  line-height: 1.2;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
 .brand-org-name {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-top: 2px;
@@ -1804,13 +1815,56 @@ table.data-table tr:hover td {
    Main Text #F4EFE8, Secondary #ADA298, Borders #403831
    ========================================================================== */
 
-/* 1. Compact Company Introduction */
+/* 1. Overview Executive Greeting & Header Group */
+.overview-header-group {
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.overview-greeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.overview-greeting {
+  font-family: var(--font-heading);
+  font-size: 1.80rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.overview-greeting .copper-accent {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--accent-copper);
+}
+
+.overview-case-badge {
+  font-size: 0.70rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
 .overview-intro-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-card);
+  border-left: 3px solid var(--accent-copper);
   border-radius: var(--radius-md);
-  padding: 20px 24px;
-  margin-bottom: 22px;
+  padding: 14px 18px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -1819,7 +1873,7 @@ table.data-table tr:hover td {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .intro-brand {
@@ -1835,34 +1889,11 @@ table.data-table tr:hover td {
   font-size: 0.8rem;
 }
 
-.intro-product {
-  font-size: 0.76rem;
-  font-weight: 600;
+.intro-tagline {
+  font-size: 0.78rem;
+  font-style: italic;
+  font-weight: 500;
   color: var(--text-secondary);
-  letter-spacing: 0.06em;
-}
-
-.intro-badge {
-  background: var(--accent-copper-soft);
-  color: var(--accent-copper);
-  border: 1px solid var(--accent-copper-border);
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-left: auto;
-}
-
-.intro-headline {
-  font-family: var(--font-heading);
-  font-size: 1.55rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.25;
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
 }
 
 .intro-desc {
