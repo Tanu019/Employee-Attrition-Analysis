@@ -60,6 +60,22 @@ def recommend_support_actions(risk_band: str, employee_features: Dict[str, Any])
     return actions
 
 
+_BASELINE_EMPLOYEE_RECORD: Optional[Dict[str, Any]] = None
+
+
+def get_baseline_employee_record() -> Dict[str, Any]:
+    global _BASELINE_EMPLOYEE_RECORD
+    if _BASELINE_EMPLOYEE_RECORD is not None:
+        return _BASELINE_EMPLOYEE_RECORD.copy()
+    try:
+        from src.data_loader import get_default_master_data
+        df = get_default_master_data()
+        _BASELINE_EMPLOYEE_RECORD = df.iloc[0].to_dict()
+    except Exception:
+        _BASELINE_EMPLOYEE_RECORD = {}
+    return _BASELINE_EMPLOYEE_RECORD.copy()
+
+
 def predict_single_employee(
     pipeline: Any,
     feature_dict: Dict[str, Any],
@@ -69,7 +85,9 @@ def predict_single_employee(
     """
     Execute single employee inference through trained pipeline.
     """
-    input_df = pd.DataFrame([feature_dict])
+    merged_features = get_baseline_employee_record()
+    merged_features.update({k: v for k, v in feature_dict.items() if v is not None})
+    input_df = pd.DataFrame([merged_features])
     input_df = engineer_hr_features(input_df)
 
     # Probability estimation

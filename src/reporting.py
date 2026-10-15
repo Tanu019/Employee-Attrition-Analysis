@@ -3,7 +3,7 @@ Reporting and export module.
 Generates comprehensive executive summaries, data quality documentation,
 and CSV/markdown export bundles.
 """
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 import pandas as pd
 
@@ -57,7 +57,12 @@ def generate_executive_markdown_report(
         comp_df = model_eval_dict["comparison_df"]
         best_model = model_eval_dict.get("best_model_name", "Random Forest")
         md += f"**Primary Selected Model:** `{best_model}` (Selected based on balanced F1-Score & PR-AUC on held-out test data)\n\n"
-        md += comp_df.to_markdown(index=False)
+        cols = list(comp_df.columns)
+        table_str = "| " + " | ".join(cols) + " |\n"
+        table_str += "| " + " | ".join(["---"] * len(cols)) + " |\n"
+        for _, row in comp_df.iterrows():
+            table_str += "| " + " | ".join(str(row[c]) for c in cols) + " |\n"
+        md += table_str
         md += "\n\n*All metrics evaluated on stratified 20% held-out test set (500 unseen employees). Baseline Dummy accuracy is 82.0% due to class imbalance.*"
     else:
         md += "*Model evaluation pending or not executed.*\n"
