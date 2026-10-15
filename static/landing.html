@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnackRush Enterprise Solutions | People Intelligence</title>
+  <meta name="description" content="An intelligent approach to workforce insights and employee attrition analysis. SnackRush Enterprise Solutions.">
+  <link rel="stylesheet" href="/static/css/landing.css">
+</head>
+<body>
+
+  <!-- Abstract Intelligence Network Canvas -->
+  <div class="canvas-container" aria-hidden="true">
+    <canvas id="network-canvas"></canvas>
+    <div class="ambient-lighting"></div>
+  </div>
+
+  <!-- Main Shell Composition -->
+  <div class="landing-shell">
+
+    <!-- Top-Left Brand Wordmark -->
+    <header class="landing-header">
+      <a href="/" class="brand-wordmark" aria-label="SnackRush Enterprise Solutions Home">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="4"></circle>
+            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+            <circle cx="19" cy="11" r="2" stroke-width="1.2"></circle>
+            <circle cx="5" cy="11" r="2" stroke-width="1.2"></circle>
+          </svg>
+        </div>
+        <div class="brand-text-block">
+          <span class="brand-primary-name">SnackRush</span>
+          <span class="brand-sub-name">Enterprise Solutions</span>
+        </div>
+      </a>
+
+      <div class="header-tag">
+        <span class="tag-dot"></span>
+        <span>People Intelligence Platform</span>
+      </div>
+    </header>
+
+    <!-- Main Editorial Hero Section -->
+    <main class="hero-composition">
+      <div class="hero-eyebrow">
+        PEOPLE · PERFORMANCE · POSSIBILITIES
+      </div>
+
+      <div class="headline-group">
+        <h1 class="headline-primary">Every business runs on people.</h1>
+        <h2 class="headline-secondary">Understand <em>yours better.</em></h2>
+      </div>
+
+      <p class="hero-supporting">
+        An intelligent approach to workforce insights and employee attrition analysis.
+      </p>
+
+      <div class="cta-wrapper">
+        <a href="/app" class="btn-enter" id="cta-enter-platform">
+          <span>Enter People Intelligence</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
+    </main>
+
+    <!-- Refined Minimal Footer Row -->
+    <footer class="landing-footer">
+      <div class="footer-left-meta">
+        <span>SnackRush Technologies Inc.</span>
+        <span>·</span>
+        <span>Decision Support System</span>
+      </div>
+      <div class="footer-right-meta">
+        <span>Confidential & Proprietary Analytics</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Gentle Network Canvas Script -->
+  <script>
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+      }
+
+      const canvas = document.getElementById('network-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let animationFrameId;
+      let isVisible = true;
+
+      // Particle parameters (understated, cinematic)
+      const NODE_COUNT = 42;
+      const MAX_DISTANCE = 170;
+      const nodes = [];
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+
+      function initNodes() {
+        nodes.length = 0;
+        for (let i = 0; i < NODE_COUNT; i++) {
+          nodes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.28,
+            vy: (Math.random() - 0.5) * 0.28,
+            radius: Math.random() * 1.6 + 0.9,
+            colorAlpha: Math.random() * 0.4 + 0.2
+          });
+        }
+      }
+
+      function step() {
+        if (!isVisible) return;
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Draw connections
+        for (let i = 0; i < nodes.length; i++) {
+          const a = nodes[i];
+
+          // Update position gently
+          a.x += a.vx;
+          a.y += a.vy;
+
+          if (a.x < 0) a.x = width;
+          else if (a.x > width) a.x = 0;
+          if (a.y < 0) a.y = height;
+          else if (a.y > height) a.y = 0;
+
+          for (let j = i + 1; j < nodes.length; j++) {
+            const b = nodes[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < MAX_DISTANCE) {
+              const alpha = (1 - dist / MAX_DISTANCE) * 0.16;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.strokeStyle = `rgba(196, 124, 90, ${alpha})`;
+              ctx.lineWidth = 0.75;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw nodes
+        for (let i = 0; i < nodes.length; i++) {
+          const n = nodes[i];
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(245, 240, 232, ${n.colorAlpha})`;
+          ctx.fill();
+
+          // Subtle warm glow for select nodes
+          if (i % 5 === 0) {
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.radius * 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(196, 124, 90, 0.05)';
+            ctx.fill();
+          }
+        }
+
+        animationFrameId = requestAnimationFrame(step);
+      }
+
+      window.addEventListener('resize', () => {
+        resize();
+        initNodes();
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        isVisible = !document.hidden;
+        if (isVisible) {
+          cancelAnimationFrame(animationFrameId);
+          step();
+        }
+      });
+
+      resize();
+      initNodes();
+      step();
+    })();
+  </script>
+</body>
+</html>

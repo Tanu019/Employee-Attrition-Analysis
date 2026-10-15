@@ -16,8 +16,20 @@ _CACHED_FINGERPRINT: Optional[str] = None
 _CACHED_MASTER_DF: Optional[pd.DataFrame] = None
 
 
-def compute_file_fingerprint(data_bytes: bytes) -> str:
-    """Compute SHA-256 fingerprint of file bytes for version tracking."""
+def compute_file_fingerprint(data_source: Union[str, Path, io.BytesIO, bytes]) -> str:
+    """Compute SHA-256 fingerprint of file bytes or filepath for version tracking."""
+    if isinstance(data_source, (str, Path)):
+        p = Path(data_source)
+        if p.exists():
+            data_bytes = p.read_bytes()
+        else:
+            data_bytes = str(data_source).encode("utf-8")
+    elif isinstance(data_source, io.BytesIO):
+        data_bytes = data_source.getvalue()
+    elif isinstance(data_source, bytes):
+        data_bytes = data_source
+    else:
+        data_bytes = str(data_source).encode("utf-8")
     return hashlib.sha256(data_bytes).hexdigest()[:12]
 
 

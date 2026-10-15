@@ -11,28 +11,31 @@ REPORTS_DIR = BASE_DIR / "reports"
 MODELS_DIR = BASE_DIR / "models"
 
 # App Metadata
-APP_TITLE = "EMPLOYEES ATTRITION ANALYSIS"
-APP_SUBTITLE = "An Interactive HR Analytics and Machine Learning Decision Support System"
-PROJECT_CONTEXT = "MBA Business Analytics Capstone Project"
-ORGANIZATION_NAME = "SnackRush Enterprise Solutions"
+PRODUCT_NAME = "People Intelligence"
+APP_TITLE = "Employees Attrition Analysis"
+APP_SUBTITLE = "An Explainable HR Analytics and Predictive Decision Support Platform"
+PROJECT_CONTEXT = "An Explainable HR Analytics and Predictive Decision Support Platform"
+ORGANIZATION_NAME = "SnackRush"
+ORGANIZATION_NOTE = "Fictional quick-commerce company (synthetic demonstration data)"
+TAGLINE = "Understand workforce trends. Identify retention opportunities. Make evidence-based HR decisions."
 
-# Color Palette (Warm Cocoa / Charcoal / Copper Theme)
+# Color Palette (Refined Warm Neutrals with Muted Terracotta)
 THEME_COLORS = {
-    "background": "#181513",
-    "card_bg": "#241f1c",
-    "card_hover": "#2e2723",
-    "border": "#3a322c",
-    "accent": "#c86d51",        # Muted copper / terracotta
-    "accent_hover": "#d97d62",
-    "text_primary": "#f7f3eb",   # Warm ivory
-    "text_secondary": "#aba398", # Neutral grey
-    "text_muted": "#7d756b",
-    "risk_low": "#388e3c",      # Emerald green
-    "risk_moderate": "#f57c00", # Warm amber
-    "risk_high": "#d32f2f",     # Crimson terracotta
+    "background": "#211E1B",
+    "card_bg": "#302923",
+    "card_hover": "#3a322b",
+    "border": "#494038",
+    "accent": "#C47C5A",        # Muted terracotta
+    "accent_hover": "#d18a67",
+    "text_primary": "#F5F0E8",   # Warm ivory
+    "text_secondary": "#B8ADA2", # Muted grey
+    "text_muted": "#8a7f74",
+    "risk_low": "#8FA58B",      # Positive soft sage
+    "risk_moderate": "#D49B5B", # Muted amber
+    "risk_high": "#C85A5A",     # Restrained red
     "chart_palette": [
-        "#c86d51", "#d9822b", "#5b8c85", "#8c6d97", "#d1a853",
-        "#6b8e23", "#4682b4", "#cd853f", "#bc8f8f", "#708090"
+        "#C47C5A", "#8FA58B", "#D49B5B", "#C85A5A", "#7B8FA1",
+        "#A87B65", "#6B8E7D", "#B88E52", "#9E6565", "#5E7182"
     ]
 }
 

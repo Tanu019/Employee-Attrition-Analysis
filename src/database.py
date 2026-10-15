@@ -79,6 +79,22 @@ def init_database():
     )
     """)
 
+    # Retention action plans table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS retention_action_plans (
+        plan_id TEXT PRIMARY KEY,
+        timestamp TEXT NOT NULL,
+        department TEXT NOT NULL,
+        issue TEXT NOT NULL,
+        proposed_action TEXT NOT NULL,
+        owner TEXT NOT NULL,
+        target_date TEXT NOT NULL,
+        review_period TEXT NOT NULL,
+        kpi TEXT NOT NULL,
+        status TEXT NOT NULL
+    )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -162,3 +178,51 @@ def get_prediction_history() -> pd.DataFrame:
     df = pd.read_sql_query(query, conn)
     conn.close()
     return df
+
+
+def save_action_plan(plan: Dict[str, Any]) -> str:
+    """Save an actionable retention initiative to SQLite."""
+    init_database()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    plan_id = plan.get("plan_id", f"PLAN_{datetime.now().strftime('%Y%m%d%H%M%S')}")
+    cursor.execute("""
+    INSERT OR REPLACE INTO retention_action_plans (
+        plan_id, timestamp, department, issue, proposed_action,
+        owner, target_date, review_period, kpi, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        plan_id,
+        plan.get("timestamp", datetime.now().isoformat()),
+        plan.get("department", "All Departments"),
+        plan.get("issue", "General Retention"),
+        plan.get("proposed_action", ""),
+        plan.get("owner", "HR Lead"),
+        plan.get("target_date", "Q4 2026"),
+        plan.get("review_period", "Quarterly"),
+        plan.get("kpi", "Attrition Rate %"),
+        plan.get("status", "Planned")
+    ))
+    conn.commit()
+    conn.close()
+    return plan_id
+
+
+def get_all_action_plans() -> List[Dict[str, Any]]:
+    """Retrieve all logged retention action plans."""
+    init_database()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM retention_action_plans ORDER BY timestamp DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def delete_action_plan(plan_id: str):
+    """Delete a retention action plan by plan_id."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM retention_action_plans WHERE plan_id = ?", (str(plan_id),))
+    conn.commit()
+    conn.close()

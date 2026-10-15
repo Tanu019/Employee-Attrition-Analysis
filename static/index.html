@@ -3,9 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EMPLOYEES ATTRITION ANALYSIS | HR Decision Support System</title>
-  <meta name="description" content="An Interactive HR Analytics and Machine Learning Decision Support System for employee attrition prediction, workforce planning, and evidence-based retention strategy.">
+  <title>People Intelligence | Employees Attrition Analysis</title>
+  <meta name="description" content="People Intelligence: An Explainable HR Analytics and Predictive Decision Support Platform. Understand workforce trends. Identify retention opportunities. Make evidence-based HR decisions.">
   <link rel="stylesheet" href="/static/css/style.css">
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('attrition_lens_theme');
+        if (savedTheme === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <!-- Plotly.js for Interactive Visualizations -->
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <!-- Lucide Icons -->
@@ -15,66 +27,87 @@
 
 <div class="app-layout">
   <!-- Persistent Sidebar Navigation -->
-  <aside class="app-sidebar">
+  <!-- Persistent Sidebar Navigation -->
+  <aside class="app-sidebar" aria-label="Sidebar Navigation">
     <div class="sidebar-header">
-      <div class="brand-badge">
-        <i data-lucide="shield-check" style="width:12px;height:12px;"></i> SnackRush Enterprise • MBA Analytics
-      </div>
-      <h1 class="brand-title">EMPLOYEES ATTRITION ANALYSIS</h1>
-      <p class="brand-subtitle">Interactive HR Decision Support System</p>
+      <a href="/" class="brand-top-row" title="SnackRush Enterprise · Attrition Lens">
+        <div class="brand-lens-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7.5"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+            <circle cx="11" cy="11" r="3" stroke-width="1.6"></circle>
+          </svg>
+        </div>
+        <div class="brand-text-block">
+          <span class="brand-product-title">Attrition Lens</span>
+          <span class="brand-org-name">SnackRush Enterprise</span>
+        </div>
+      </a>
     </div>
 
-    <nav class="sidebar-nav">
-      <div class="nav-section-title">Core Operations</div>
-      <a class="nav-item active" data-target="mod-overview">
-        <i data-lucide="compass"></i> Overview & Context
+    <nav class="sidebar-nav" aria-label="Workspace Navigation">
+      <div class="nav-section-title">WORKSPACE</div>
+      <a class="nav-item active" data-target="mod-overview" role="button" tabindex="0">
+        <i data-lucide="compass" class="nav-icon"></i>
+        <span class="nav-label">Overview</span>
       </a>
-      <a class="nav-item" data-target="mod-validation">
-        <i data-lucide="database"></i> Data Profiler & Schema
+      <a class="nav-item" data-target="mod-attrition" role="button" tabindex="0">
+        <i data-lucide="bar-chart-2" class="nav-icon"></i>
+        <span class="nav-label">Attrition Analysis</span>
       </a>
-      <a class="nav-item" data-target="mod-dashboard">
-        <i data-lucide="layout-dashboard"></i> Executive HR Dashboard
+      <a class="nav-item" data-target="mod-predictor" role="button" tabindex="0">
+        <i data-lucide="cpu" class="nav-icon"></i>
+        <span class="nav-label">Prediction & Model</span>
       </a>
-      <a class="nav-item" data-target="mod-deepdive">
-        <i data-lucide="activity"></i> Attrition Deep-Dive
+      <a class="nav-item" data-target="mod-retention" role="button" tabindex="0">
+        <i data-lucide="target" class="nav-icon"></i>
+        <span class="nav-label">Retention Strategy</span>
       </a>
-      <a class="nav-item" data-target="mod-calculator">
-        <i data-lucide="calculator"></i> Attrition Rate Calculator
-      </a>
-
-      <div class="nav-section-title">Machine Learning</div>
-      <a class="nav-item" data-target="mod-preprocessing">
-        <i data-lucide="filter"></i> Preprocessing & Leakage
-      </a>
-      <a class="nav-item" data-target="mod-model-eval">
-        <i data-lucide="award"></i> Model Evaluation
-      </a>
-      <a class="nav-item" data-target="mod-predictor">
-        <i data-lucide="user-check"></i> Individual Predictor
-      </a>
-      <a class="nav-item" data-target="mod-explainability">
-        <i data-lucide="sparkles"></i> Explainability & Drivers
-      </a>
-
-      <div class="nav-section-title">Strategy & Reporting</div>
-      <a class="nav-item" data-target="mod-retention">
-        <i data-lucide="trending-up"></i> Retention Strategy & ROI
-      </a>
-      <a class="nav-item" data-target="mod-experiments">
-        <i data-lucide="history"></i> Experiment History
-      </a>
-      <a class="nav-item" data-target="mod-reports">
-        <i data-lucide="file-text"></i> Reports & Data Export
-      </a>
-      <a class="nav-item" data-target="mod-methodology">
-        <i data-lucide="book-open"></i> Methodology & Docs
+      <a class="nav-item" data-target="mod-upload" role="button" tabindex="0">
+        <i data-lucide="folder-kanban" class="nav-icon"></i>
+        <span class="nav-label">Data & Reports</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        <span id="sidebar-status-text">SnackRush: 2,500 Rows • RF Online</span>
+      <div class="theme-switcher-box">
+        <div class="theme-switcher-header">
+          <span class="theme-switcher-label">
+            <i data-lucide="palette" style="width:11px;height:11px;"></i> THEME
+          </span>
+        </div>
+        <div class="theme-switch-group" role="radiogroup" aria-label="Theme mode switcher">
+          <button type="button" class="theme-toggle-btn active" id="theme-btn-dark" onclick="app.setTheme('dark')" aria-label="Dark Theme" title="Switch to Dark Theme">
+            <i data-lucide="moon"></i>
+            <span>Dark</span>
+          </button>
+          <button type="button" class="theme-toggle-btn" id="theme-btn-light" onclick="app.setTheme('light')" aria-label="Light Theme" title="Switch to Light Theme">
+            <i data-lucide="sun"></i>
+            <span>Light</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-status-card" id="sidebar-workspace-card">
+        <div class="status-card-header">
+          <div class="status-indicator-dot online" id="sidebar-workspace-dot"></div>
+          <span class="status-card-title" id="sidebar-workspace-title">Workspace Active</span>
+          <span class="status-card-tag" id="sidebar-env-tag">Demo Env</span>
+        </div>
+        <div class="status-card-body">
+          <div class="status-row">
+            <span class="status-label">Environment</span>
+            <span class="status-value">SnackRush Demo</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Records</span>
+            <span class="status-value" id="sidebar-record-count">2,500 Records</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Model Engine</span>
+            <span class="status-value" id="sidebar-model-status">Random Forest Ready</span>
+          </div>
+        </div>
       </div>
     </div>
   </aside>
@@ -84,33 +117,18 @@
     <!-- Top Header Bar -->
     <header class="app-header">
       <div class="header-left">
-        <span class="page-title" id="top-header-title">Executive Command Center</span>
-        <div class="header-badge">
-          <i data-lucide="building-2" style="width:13px;height:13px;"></i>
-          <span>SnackRush Technologies</span>
-        </div>
-        <div class="header-badge">
-          <i data-lucide="database" style="width:13px;height:13px;"></i>
-          <span>2,500 Monitored Staff</span>
-        </div>
-        <div class="header-badge">
-          <i data-lucide="cpu" style="width:13px;height:13px;"></i>
-          <span id="top-model-badge">Random Forest (F1: 0.459, ROC: 0.745)</span>
-        </div>
+        <span class="page-title" id="top-header-title">Attrition Lens</span>
       </div>
       <div class="header-right">
-        <button class="btn-header-action" onclick="app.showTourModal()">
-          <i data-lucide="book-marked" style="width:14px;height:14px;"></i> System Guide
+        <button class="btn-header-action" onclick="app.showPrivacyModal()" title="View Ethical AI, Privacy & Data Governance Standard">
+          <i data-lucide="shield-check" style="width:14px;height:14px;"></i> Privacy & Governance
         </button>
-        <button class="btn-header-action" onclick="app.exportFilteredCsv()">
-          <i data-lucide="file-spreadsheet" style="width:14px;height:14px;"></i> Export Data (CSV)
+        <button class="btn-header-action" onclick="app.navigateTo('mod-upload')" title="Upload dataset, inspect schema, and export reports">
+          <i data-lucide="folder-kanban" style="width:14px;height:14px;"></i> Data & Reports
         </button>
-        <button class="btn-header-action" onclick="app.downloadReport('markdown')">
-          <i data-lucide="download" style="width:14px;height:14px;"></i> Export MD
-        </button>
-        <button class="btn-header-action primary" onclick="app.downloadReport('html')">
-          <i data-lucide="file-check" style="width:14px;height:14px;"></i> Executive HTML Report
-        </button>
+        <a href="/" class="btn-header-action" title="Return to SnackRush Enterprise Introduction" style="text-decoration:none;">
+          <i data-lucide="home" style="width:14px;height:14px;"></i> Company Intro
+        </a>
       </div>
     </header>
 
@@ -118,424 +136,148 @@
     <div class="page-container">
 
       <!-- =========================================================
-           MODULE 1: EXECUTIVE COMMAND CENTER & OVERVIEW
+           MODULE 1: ATTRITION LENS OVERVIEW
            ========================================================= -->
       <section id="mod-overview" class="view-section active">
-        <div class="section-banner">
-          <div style="display:inline-flex; align-items:center; gap:8px; background:var(--accent-copper-soft); color:var(--accent-copper); border:1px solid var(--accent-copper-border); padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px;">
-            <i data-lucide="zap" style="width:13px;height:13px;"></i> SnackRush Enterprise Decision Support System
+
+        <!-- 1. Company Introduction (Compact & Minimal) -->
+        <div class="overview-intro-box">
+          <div class="intro-eyebrow">
+            <span class="intro-brand">SnackRush Enterprise Solutions</span>
+            <span class="intro-dot">•</span>
+            <span class="intro-product">Attrition Lens</span>
+            <span class="intro-badge">Synthetic Operational Cohort</span>
           </div>
-          <h2>Executive Command Center & Strategic Overview</h2>
-          <p>
-            An end-to-end, production-grade HR analytics and supervised machine learning intelligence suite engineered for 
-            <strong>SnackRush Technologies Inc.</strong> (Quick Commerce & On-Demand Delivery). Diagnoses systemic attrition, predicts flight risk prior to resignations, and simulates evidence-backed retention ROI.
+          <h1 class="intro-headline">Workforce Turnover & Retention Intelligence</h1>
+          <p class="intro-desc">
+            <strong>SnackRush</strong> is a fictional quick-commerce and food-delivery company operating dark-store micro-fulfillment hubs and urban delivery fleets across five metropolitan regions. This project analyzes employee attrition and supports retention decisions across operational and corporate business units.
           </p>
         </div>
 
-        <!-- Vital Signs Ribbon -->
-        <div class="stats-ribbon">
-          <div class="stats-ribbon-item">
-            <i data-lucide="users" style="width:16px;height:16px;color:var(--accent-copper);"></i>
-            <span>Monitored Staff: <strong>2,500 Full-Time Employees</strong></span>
+        <!-- 2. Dashboard: Exactly Four Responsive KPI Cards -->
+        <div class="overview-kpi-grid">
+          <!-- KPI 1: Total Employee Records -->
+          <div class="overview-kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-card-label">Total Employee Records</span>
+              <div class="kpi-card-icon"><i data-lucide="users"></i></div>
+            </div>
+            <div class="kpi-card-value" id="kpi-headcount">2,500</div>
+            <div class="kpi-card-sub" id="kpi-headcount-sub">Monitored workforce in active dataset (Synthetic)</div>
           </div>
-          <div class="stats-ribbon-item">
-            <i data-lucide="alert-circle" style="width:16px;height:16px;color:var(--status-crimson);"></i>
-            <span>Baseline Attrition: <strong>18.0% (450 Exits)</strong></span>
+
+          <!-- KPI 2: Employees Who Left -->
+          <div class="overview-kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-card-label">Employees Who Left</span>
+              <div class="kpi-card-icon crimson"><i data-lucide="user-x"></i></div>
+            </div>
+            <div class="kpi-card-value crimson" id="kpi-leavers">450</div>
+            <div class="kpi-card-sub" id="kpi-leavers-sub">370 Voluntary (82.2%) • 80 Involuntary exits</div>
           </div>
-          <div class="stats-ribbon-item">
-            <i data-lucide="indian-rupee" style="width:16px;height:16px;color:var(--status-amber);"></i>
-            <span>Annual Turnover Exposure: <strong>₹2.12 Crore INR</strong></span>
+
+          <!-- KPI 3: Historical Attrition Rate -->
+          <div class="overview-kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-card-label">Historical Attrition Rate</span>
+              <div class="kpi-card-icon copper"><i data-lucide="activity"></i></div>
+            </div>
+            <div class="kpi-card-value copper" id="kpi-rate">18.0%</div>
+            <div class="kpi-card-sub" id="kpi-rate-sub" title="Observed historical exits divided by total headcount observed in cohort dataset">
+              Cohort turnover incidence (450 exits / 2,500 records)
+            </div>
           </div>
-          <div class="stats-ribbon-item">
-            <i data-lucide="cpu" style="width:16px;height:16px;color:var(--status-emerald);"></i>
-            <span>Production ML: <strong>Random Forest (ROC: 0.745, F1: 0.459)</strong></span>
-          </div>
-          <div class="stats-ribbon-item">
-            <i data-lucide="shield-check" style="width:16px;height:16px;color:var(--status-sapphire);"></i>
-            <span>Governance: <strong>100% Data-Leakage Free</strong></span>
+
+          <!-- KPI 4: Model Performance (Valid Held-Out Metric) -->
+          <div class="overview-kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-card-label">Model Performance</span>
+              <div class="kpi-card-icon emerald"><i data-lucide="target"></i></div>
+            </div>
+            <div class="kpi-card-value emerald" id="kpi-model-eval-stat">ROC: 0.745</div>
+            <div class="kpi-card-sub" id="kpi-model-eval-sub">Held-out test set (500 rows) • Random Forest</div>
           </div>
         </div>
 
-        <!-- Executive System Navigator (9 Modules Tour) -->
-        <div style="margin:24px 0 12px 0;">
-          <h3 style="font-family:var(--font-heading); font-size:1.15rem; color:var(--text-primary); margin-bottom:4px;">
-            Interactive System Navigator
-          </h3>
-          <p style="font-size:0.84rem; color:var(--text-muted);">
-            Direct 1-click access to all 14 analytics modules, interactive models, and executive toolkits:
-          </p>
-        </div>
-
-        <div class="tour-grid">
-          <!-- Card 1: Dashboard -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon"><i data-lucide="layout-dashboard"></i></div>
-                <span class="badge badge-low">Live Analytics</span>
+        <!-- 3. Two Core Analytics Visualizations -->
+        <div class="overview-charts-row">
+          <!-- 1. Workforce Distribution Chart -->
+          <div class="overview-chart-card">
+            <div class="overview-chart-header">
+              <div>
+                <h3 class="overview-chart-title">Workforce Distribution</h3>
+                <p class="overview-chart-desc">Active Stayers vs. Historical Departures in monitored dataset</p>
               </div>
-              <h4 class="tour-card-title">Executive HR Dashboard</h4>
-              <p class="tour-card-desc">Interactive workforce intelligence breaking down attrition across 11 departments, compensation tiers, overtime status, and tenure bands.</p>
+              <span class="badge badge-low" id="overview-retention-rate">82.0% Retained</span>
             </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-dashboard')">
-              Launch Dashboard <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-
-          <!-- Card 2: Individual Predictor -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon" style="background:var(--status-crimson-soft); color:var(--status-crimson);"><i data-lucide="user-check"></i></div>
-                <span class="badge badge-high">Scoring Engine</span>
+            <div class="distribution-chart-body">
+              <div id="chart-overall-dist" class="chart-container" style="height:230px;"></div>
+              <div class="distribution-legend-strip">
+                <div class="dist-legend-item">
+                  <span class="dist-legend-dot stayer"></span>
+                  <span>Stayers: <strong id="kpi-stayers">2,050 staff (82.0%)</strong></span>
+                </div>
+                <div class="dist-legend-item">
+                  <span class="dist-legend-dot leaver"></span>
+                  <span>Leavers: <strong id="breakdown-leavers-text">450 staff (18.0%)</strong></span>
+                </div>
               </div>
-              <h4 class="tour-card-title">Flight Risk Predictor</h4>
-              <p class="tour-card-desc">Score individual employee profiles with calibrated Random Forest probabilities. Includes 1-click presets (High-Risk, Loyal, Burnout).</p>
             </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-predictor')">
-              Test Predictor <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
           </div>
 
-          <!-- Card 3: Batch Scoring -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon" style="background:var(--status-sapphire-soft); color:var(--status-sapphire);"><i data-lucide="upload-cloud"></i></div>
-                <span class="badge badge-info">Bulk Scoring</span>
+          <!-- 2. Horizontal Bar Chart: Comparing Department Attrition Rates -->
+          <div class="overview-chart-card">
+            <div class="overview-chart-header">
+              <div>
+                <h3 class="overview-chart-title">Department Attrition Comparison</h3>
+                <p class="overview-chart-desc">Observed historical turnover rate (%) across operating business units</p>
               </div>
-              <h4 class="tour-card-title">Batch CSV Scoring</h4>
-              <p class="tour-card-desc">Drag & drop unlabelled employee CSV rosters. Instantly scores hundreds of staff into High, Moderate, and Low flight risk cohorts.</p>
             </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-predictor')">
-              Open Batch Tool <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-
-          <!-- Card 4: Model Evaluation & ROC -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon" style="background:var(--status-emerald-soft); color:var(--status-emerald);"><i data-lucide="award"></i></div>
-                <span class="badge badge-pass">500 Test Samples</span>
-              </div>
-              <h4 class="tour-card-title">Model Evaluation & ROC</h4>
-              <p class="tour-card-desc">Rigorous held-out test benchmarks comparing 5 models, interactive Plotly ROC & PR curves, confusion matrix, and threshold cost tuning.</p>
-            </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-model-eval')">
-              Inspect Models <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-
-          <!-- Card 5: Data Profiler & Schema -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon"><i data-lucide="database"></i></div>
-                <span class="badge badge-low">70 Attributes</span>
-              </div>
-              <h4 class="tour-card-title">Data Profiler & Dictionary</h4>
-              <p class="tour-card-desc">Automated data quality audit rules and real-time searchable data dictionary covering types, non-null counts, and sample values.</p>
-            </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-validation')">
-              Explore Schema <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-
-          <!-- Card 6: Headcount Calculator -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon"><i data-lucide="calculator"></i></div>
-                <span class="badge badge-low">Formula Audit</span>
-              </div>
-              <h4 class="tour-card-title">Attrition Rate Calculator</h4>
-              <p class="tour-card-desc">Audited standard workforce formula: <code>(Exits / Average Headcount) × 100</code> with dataset-derived and manual enterprise calculation modes.</p>
-            </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-calculator')">
-              Use Calculator <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-
-          <!-- Card 7: Explainability -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon" style="background:var(--status-amber-soft); color:var(--status-amber);"><i data-lucide="sparkles"></i></div>
-                <span class="badge badge-warn">Feature Drivers</span>
-              </div>
-              <h4 class="tour-card-title">Explainability & Drivers</h4>
-              <p class="tour-card-desc">Uncover true attrition drivers using Permutation Importance on unseen test data, isolating burnout, overtime, and tenure ratios.</p>
-            </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-explainability')">
-              View Drivers <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-
-          <!-- Card 8: Retention ROI -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon" style="background:var(--status-emerald-soft); color:var(--status-emerald);"><i data-lucide="trending-up"></i></div>
-                <span class="badge badge-pass">Financial ROI</span>
-              </div>
-              <h4 class="tour-card-title">Retention Strategy & ROI</h4>
-              <p class="tour-card-desc">Actionable departmental retention roadmaps and interactive financial turnover simulator modeling net savings and ROI multipliers.</p>
-            </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-retention')">
-              Simulate ROI <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-
-          <!-- Card 9: Reports & Export -->
-          <div class="tour-card">
-            <div>
-              <div class="tour-card-header">
-                <div class="tour-card-icon"><i data-lucide="file-text"></i></div>
-                <span class="badge badge-low">Export Ready</span>
-              </div>
-              <h4 class="tour-card-title">Executive Reports & Export</h4>
-              <p class="tour-card-desc">Download self-contained executive HTML boardroom presentations, technical Markdown documentation, and filtered dataset CSVs.</p>
-            </div>
-            <button class="tour-action-btn" onclick="app.switchView('mod-reports')">
-              Download Reports <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Key Executive Findings for Boardroom Presentation -->
-        <div style="margin:28px 0 12px 0;">
-          <h3 style="font-family:var(--font-heading); font-size:1.15rem; color:var(--text-primary); margin-bottom:4px;">
-            Key Empirical Findings & Strategic Insights
-          </h3>
-          <p style="font-size:0.84rem; color:var(--text-muted);">
-            Executive summary of empirical evidence synthesized from the 2,500 employee workforce audit:
-          </p>
-        </div>
-
-        <div class="exec-finding-grid">
-          <div class="exec-finding-card critical">
-            <div class="exec-finding-title">
-              <i data-lucide="flame" style="color:var(--status-crimson);"></i> #1 Attrition Catalyst: Burnout & Overtime
-            </div>
-            <div class="exec-finding-body">
-              Employees who exited exhibited an average <strong>BurnoutRiskScore of 58.4</strong> compared to 47.8 among stayers (+10.6 point divergence). Staff working frequent overtime (>30 hrs/month) experience a <strong>1.88x exit multiplier</strong>.
-            </div>
-          </div>
-
-          <div class="exec-finding-card warning">
-            <div class="exec-finding-title">
-              <i data-lucide="trending-down" style="color:var(--status-amber);"></i> #2 High-Risk Vulnerability Cohorts
-            </div>
-            <div class="exec-finding-body">
-              Turnover is intensely concentrated in frontline operations: <strong>Delivery Operations (24.8%)</strong> and <strong>Sales (23.2%)</strong>. Early career tenures (1–3 years) represent 48.7% of all departures due to competitive market poaching.
-            </div>
-          </div>
-
-          <div class="exec-finding-card info">
-            <div class="exec-finding-title">
-              <i data-lucide="shield-alert" style="color:var(--status-sapphire);"></i> #3 The Accuracy Paradox Exposed
-            </div>
-            <div class="exec-finding-body">
-              A naive Dummy baseline achieves <strong>82.0% Accuracy</strong> by predicting "No Exit" for all staff, yet fails to catch a single departure (Recall = 0%). The production <strong>Random Forest is calibrated with F1 = 0.459</strong> and ROC-AUC = 0.745.
-            </div>
-          </div>
-
-          <div class="exec-finding-card success">
-            <div class="exec-finding-title">
-              <i data-lucide="badge-dollar-sign" style="color:var(--status-emerald);"></i> #4 High Financial ROI of Retention
-            </div>
-            <div class="exec-finding-body">
-              Replacing a departed employee costs <strong>₹50,000 to ₹3,00,000+</strong>. Deploying targeted wellbeing check-ins and overtime caps at ₹1,800/employee yields a <strong>1,894% net financial return</strong>, saving over ₹48 Lakhs annually.
+            <div class="chart-body-wrap">
+              <div id="chart-dept-attrition" class="chart-container" style="height:250px;"></div>
             </div>
           </div>
         </div>
 
-        <!-- SnackRush Company Dossier -->
-        <div class="charts-grid" style="margin-top:24px;">
-          <div class="chart-card">
-            <h3 class="chart-title">About SnackRush Technologies Inc.</h3>
-            <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
-              <strong>SnackRush Enterprise Solutions</strong> is a premier Indian on-demand quick-commerce and food delivery enterprise operating across 5 metropolitan regions (<strong>Mumbai, Bengaluru, Pune, Hyderabad, and Delhi NCR</strong>).<br><br>
-              The company manages a network of 48 micro-fulfillment dark stores and customer support centers staffed by <strong>2,500 full-time employees</strong> across 11 core operating departments. Fulfillment operations operate under strict 10–15 minute delivery SLAs, creating high operational rhythm and potential workforce strain.
+        <!-- 4. Calculated Insight from Active Dataset & Link to Explore Full Attrition Analysis -->
+        <div class="overview-insight-panel">
+          <div class="insight-content-block">
+            <div class="insight-eyebrow">
+              <i data-lucide="sparkles" style="width:13px;height:13px;"></i>
+              <span>CALCULATED DATASET INSIGHT</span>
+            </div>
+            <h4 class="insight-headline" id="overview-insight-title">Delivery Operations & Sales exhibit highest exit velocity</h4>
+            <p class="insight-text" id="overview-insight-body">
+              Frontline delivery personnel and field sales staff show peak turnover (24.8% and 22.4%), significantly exceeding the 18.0% organization average. High overtime incidence and elevated burnout risk scores are primary correlating drivers.
             </p>
+            <div class="insight-meta-row">
+              <span class="insight-tag-metric" id="overview-insight-metric">Evidence: 24.8% Unit Rate vs 18.0% Baseline</span>
+              <span class="insight-tag-implication" id="overview-insight-implication">Targeted compensation equity & route fatigue reduction recommended</span>
+            </div>
           </div>
-          <div class="chart-card">
-            <h3 class="chart-title">The Business Imperative & Decision Support</h3>
-            <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
-              Traditional human resource management reacts <em>after</em> an employee submits their resignation. In fast-paced quick commerce, sudden turnover triggers fulfillment delays, SLA breaches, and cascading team burnout.<br><br>
-              This Decision Support System provides leadership with an <strong>objective, algorithmic early-warning radar</strong> to detect organizational stress points months before resignation notices, transforming HR into a strategic value center.
-            </p>
+          <div class="insight-action-block">
+            <button class="btn-primary" onclick="app.switchView('mod-attrition')" title="Explore detailed department, tenure, compensation, satisfaction, and directory data">
+              <span>Explore Full Attrition Analysis</span>
+              <i data-lucide="arrow-right" style="width:15px;height:15px;"></i>
+            </button>
           </div>
         </div>
 
-        <!-- Dataset Governance Table -->
-        <div class="table-card" style="margin-top:20px;">
-          <div class="table-header">
-            <h3 class="table-title">Dataset Characteristics & Governance Verification</h3>
-            <span class="badge badge-low">Verified Clean Baseline</span>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Governance Dimension</th>
-                  <th>Dataset Specification</th>
-                  <th>Operational Compliance Standard</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Source Master File</strong></td>
-                  <td>SnackRush_Complete_Dataset.xlsx</td>
-                  <td>Master enterprise dataset with 9 cross-referenced relational sheets</td>
-                </tr>
-                <tr>
-                  <td><strong>Employee Records</strong></td>
-                  <td>2,500 Unique Employees</td>
-                  <td>Zero duplicate identifiers; verified 100% primary key relational integrity</td>
-                </tr>
-                <tr>
-                  <td><strong>Target Distribution</strong></td>
-                  <td>450 Exits (18.0%) vs 2,050 Stayers (82.0%)</td>
-                  <td>Class imbalance handled via class_weight='balanced' & stratified 5-fold CV</td>
-                </tr>
-                <tr>
-                  <td><strong>Data Leakage Prevention</strong></td>
-                  <td>ExitDate, ExitType, AttritionCategory, EmploymentStatus</td>
-                  <td>Strictly excluded from ML training to prevent forward contamination</td>
-                </tr>
-                <tr>
-                  <td><strong>Protected Demographic Variables</strong></td>
-                  <td>Gender, MaritalStatus, Age</td>
-                  <td>Excluded from operational predictions to ensure fair, unbiased decisions</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </section>
 
       <!-- =========================================================
-           MODULE 2: DATA PROFILER & SCHEMA VALIDATION
+           MODULE 2: ATTRITION ANALYSIS (CONSOLIDATED)
            ========================================================= -->
-      <section id="mod-validation" class="view-section">
+      <section id="mod-attrition" class="view-section">
         <div class="section-banner">
-          <h2>Data Profiler, Validation & Schema Mapping</h2>
+          <h2>Attrition Analysis & Workforce Patterns</h2>
           <p>
-            Automated schema mapping, type detection, missing-value audit, and Likert scale integrity verification across all 70 columns of the master employee record.
+            Examine workforce departure trends, operational risk hotspots, career tenure dynamics, compensation equity, and employee satisfaction drivers across all business units.
           </p>
         </div>
 
-        <div class="kpi-grid" id="validation-kpi-grid">
-          <div class="kpi-card highlight">
-            <div class="kpi-label">Master Rows</div>
-            <div class="kpi-value" id="val-rows">2,500</div>
-            <div class="kpi-subtext">Active & Exited Employees</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Total Attributes</div>
-            <div class="kpi-value" id="val-cols">70</div>
-            <div class="kpi-subtext">Demographic, Job, Pay, Surveys</div>
-          </div>
-          <div class="kpi-card emerald">
-            <div class="kpi-label">Duplicate IDs</div>
-            <div class="kpi-value">0</div>
-            <div class="kpi-subtext">Primary Key Verified</div>
-          </div>
-          <div class="kpi-card crimson">
-            <div class="kpi-label">Observed Attrition</div>
-            <div class="kpi-value" id="val-attrition-rate">18.0%</div>
-            <div class="kpi-subtext">450 Verified Departures</div>
-          </div>
-        </div>
-
-        <!-- Data Quality Checks Table -->
-        <div class="table-card">
-          <div class="table-header">
-            <h3 class="table-title">Automated Data Quality Audit Summary</h3>
-            <span class="badge badge-low">Rule-Based Pre-flight Checks</span>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table" id="quality-checks-table">
-              <thead>
-                <tr>
-                  <th>Validation Rule / Check</th>
-                  <th>Status</th>
-                  <th>Verification Finding & Evidence</th>
-                </tr>
-              </thead>
-              <tbody id="quality-checks-body">
-                <tr><td colspan="3" style="text-align:center;">Loading automated quality checks...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Comprehensive Data Dictionary with Real-Time Search -->
-        <div class="table-card">
-          <div class="table-header">
-            <div>
-              <h3 class="table-title">Comprehensive Data Dictionary (70 Attributes)</h3>
-              <p class="table-desc" style="font-size:0.8rem; color:var(--text-muted);">Search across column names, data types, and analytical categories</p>
-            </div>
-            <div>
-              <input type="text" id="dict-search-input" class="search-input-box" placeholder="🔍 Search columns (e.g. Salary, Tenure, Overtime)..." onkeyup="app.filterDataDictionary()">
-            </div>
-          </div>
-          <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
-            <table class="data-table" id="data-dictionary-table">
-              <thead>
-                <tr>
-                  <th>Column Name</th>
-                  <th>Data Type</th>
-                  <th>Non-Null Count</th>
-                  <th>Unique Values</th>
-                  <th>Sample Values</th>
-                  <th>Analytical Category</th>
-                </tr>
-              </thead>
-              <tbody id="data-dict-body">
-                <tr><td colspan="6" style="text-align:center;">Loading data dictionary...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- =========================================================
-           MODULE 3: EXECUTIVE HR DASHBOARD
-           ========================================================= -->
-      <section id="mod-dashboard" class="view-section">
-        <div class="section-banner">
-          <h2>Executive HR Analytics Dashboard</h2>
-          <p>
-            Real-time workforce intelligence and interactive breakdown of attrition patterns across business units, departments, salary bands, and overtime commitments.
-          </p>
-        </div>
-
-        <!-- Quick Stats Ribbon -->
-        <div class="stats-ribbon">
-          <div class="stats-ribbon-item">
-            <i data-lucide="layers" style="width:16px;height:16px;color:var(--accent-copper);"></i>
-            <span>Fulfillment Network: <strong>3 Business Units</strong> (Quick Commerce, Food Delivery, Central)</span>
-          </div>
-          <div class="stats-ribbon-item">
-            <i data-lucide="dollar-sign" style="width:16px;height:16px;color:var(--accent-copper);"></i>
-            <span>Median Monthly Salary: <strong>₹32,500 INR</strong></span>
-          </div>
-          <div class="stats-ribbon-item">
-            <i data-lucide="clock" style="width:16px;height:16px;color:var(--accent-copper);"></i>
-            <span>Avg Org Tenure: <strong>5.0 Years</strong></span>
-          </div>
-          <div class="stats-ribbon-item">
-            <i data-lucide="pie-chart" style="width:16px;height:16px;color:var(--accent-copper);"></i>
-            <span>Baseline Retention: <strong>82.0%</strong></span>
-          </div>
-        </div>
-
-        <!-- Filter Bar -->
-        <div class="filter-bar">
+        <!-- Advanced Workforce Filters (Moved from Overview) -->
+        <div class="filter-bar" style="margin-bottom:20px;">
           <div class="filter-group">
             <label class="filter-label" for="filter-dept">Department:</label>
             <select id="filter-dept" class="filter-select" onchange="app.applyDashboardFilters()">
@@ -546,6 +288,28 @@
             <label class="filter-label" for="filter-role">Job Role:</label>
             <select id="filter-role" class="filter-select" onchange="app.applyDashboardFilters()">
               <option value="All">All Job Roles</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label" for="filter-level">Job Level:</label>
+            <select id="filter-level" class="filter-select" onchange="app.applyDashboardFilters()">
+              <option value="All">All Job Levels</option>
+              <option value="1">Level 1 (Entry / Frontline)</option>
+              <option value="2">Level 2 (Junior Associate)</option>
+              <option value="3">Level 3 (Mid-Level Professional)</option>
+              <option value="4">Level 4 (Senior / Lead)</option>
+              <option value="5">Level 5 (Director / Executive)</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label" for="filter-location">Work Location:</label>
+            <select id="filter-location" class="filter-select" onchange="app.applyDashboardFilters()">
+              <option value="All">All Locations</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Pune">Pune</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Delhi NCR">Delhi NCR</option>
             </select>
           </div>
           <div class="filter-group">
@@ -564,747 +328,767 @@
           </button>
         </div>
 
-        <!-- KPI Grid -->
-        <div class="kpi-grid">
-          <div class="kpi-card highlight">
-            <div class="kpi-label">Total Workforce</div>
-            <div class="kpi-value" id="kpi-headcount">2,500</div>
-            <div class="kpi-subtext" id="kpi-headcount-sub">In Current Filter</div>
-          </div>
-          <div class="kpi-card crimson">
-            <div class="kpi-label">Departed Employees</div>
-            <div class="kpi-value" id="kpi-leavers">450</div>
-            <div class="kpi-subtext">Historical Exits</div>
-          </div>
-          <div class="kpi-card crimson">
-            <div class="kpi-label">Overall Attrition Rate</div>
-            <div class="kpi-value" id="kpi-rate">18.0%</div>
-            <div class="kpi-subtext">Exits / Headcount</div>
-          </div>
-          <div class="kpi-card emerald">
-            <div class="kpi-label">Retained Stayers</div>
-            <div class="kpi-value" id="kpi-stayers">2,050</div>
-            <div class="kpi-subtext">82.0% Retention Rate</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Average Monthly Base</div>
-            <div class="kpi-value" id="kpi-salary">₹40,945</div>
-            <div class="kpi-subtext">Median: ₹32,500 INR</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Average Tenure</div>
-            <div class="kpi-value" id="kpi-tenure">5.0 Yrs</div>
-            <div class="kpi-subtext">Years at Company</div>
-          </div>
-          <div class="kpi-card highlight">
-            <div class="kpi-label">Model Accuracy</div>
-            <div class="kpi-value" id="kpi-model-acc">80.2%</div>
-            <div class="kpi-subtext">Random Forest Held-Out Test</div>
-          </div>
-          <div class="kpi-card highlight">
-            <div class="kpi-label">Model F1-Score</div>
-            <div class="kpi-value" id="kpi-model-f1">0.459</div>
-            <div class="kpi-subtext">Balanced Exit Detection</div>
-          </div>
+        <!-- Sub-Navigation Tabs -->
+        <div class="app-tabs">
+          <button class="tab-btn active" data-tab="tab-attrition-dept">
+            <i data-lucide="building-2"></i> Department
+          </button>
+          <button class="tab-btn" data-tab="tab-attrition-tenure">
+            <i data-lucide="clock"></i> Tenure
+          </button>
+          <button class="tab-btn" data-tab="tab-attrition-comp">
+            <i data-lucide="dollar-sign"></i> Compensation
+          </button>
+          <button class="tab-btn" data-tab="tab-attrition-satisfaction">
+            <i data-lucide="smile"></i> Satisfaction
+          </button>
+          <button class="tab-btn" data-tab="tab-attrition-explorer">
+            <i data-lucide="users"></i> Employee Directory
+          </button>
         </div>
 
-        <!-- Charts Grid -->
-        <div class="charts-grid">
-          <div class="chart-card">
-            <div class="chart-header">
-              <div>
-                <h3 class="chart-title">Overall Attrition Distribution</h3>
-                <p class="chart-desc">Proportion of active employees vs historical exits</p>
-              </div>
+        <!-- TAB 1: Department -->
+        <div id="tab-attrition-dept" class="tab-pane active">
+          <div class="stats-ribbon">
+            <div class="stats-ribbon-item">
+              <i data-lucide="building-2" style="width:16px;height:16px;color:var(--accent-copper);"></i>
+              <span>Audited Units: <strong>11 Operating Departments</strong></span>
             </div>
-            <div id="chart-overall-dist" class="chart-container"></div>
+            <div class="stats-ribbon-item">
+              <i data-lucide="alert-triangle" style="width:16px;height:16px;color:var(--status-crimson);"></i>
+              <span>Highest Attrition: <strong>Delivery Operations (24.8%)</strong></span>
+            </div>
+            <div class="stats-ribbon-item">
+              <i data-lucide="shield-check" style="width:16px;height:16px;color:var(--status-emerald);"></i>
+              <span>Lowest Attrition: <strong>Procurement (10.9%)</strong></span>
+            </div>
+            <div class="stats-ribbon-item">
+              <i data-lucide="users" style="width:16px;height:16px;color:var(--status-sapphire);"></i>
+              <span>Largest Unit: <strong>Delivery Operations (525 Staff)</strong></span>
+            </div>
           </div>
 
-          <div class="chart-card">
-            <div class="chart-header">
-              <div>
-                <h3 class="chart-title">Attrition Rate by Department</h3>
-                <p class="chart-desc">Comparative departure percentages by department</p>
-              </div>
-            </div>
-            <div id="chart-dept-attrition" class="chart-container"></div>
+          <div style="margin:20px 0 10px 0;">
+            <h3 style="font-family:var(--font-heading); font-size:1.15rem; color:var(--text-primary); margin-bottom:4px;">
+              Department Risk Scorecards
+            </h3>
+            <p style="font-size:0.84rem; color:var(--text-muted);">
+              Key metrics across headcount, departures, voluntary rates, average compensation, and burnout vulnerability:
+            </p>
+          </div>
+          <div id="dept-intel-grid" class="dept-intel-grid">
+            <!-- Populated dynamically by app.loadDepartmentIntelligence() -->
           </div>
 
-          <div class="chart-card">
+          <!-- Department Comparison Matrix Table -->
+          <div class="table-card" style="margin-top:20px;">
+            <div class="table-header">
+              <h3 class="table-title">Comprehensive Department Performance Matrix</h3>
+              <span class="badge badge-low">11 Departments Audited</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th>Headcount</th>
+                    <th>Total Exits</th>
+                    <th>Attrition Rate</th>
+                    <th>Voluntary Exits</th>
+                    <th>Voluntary Rate</th>
+                    <th>Avg Salary</th>
+                    <th>Avg Tenure</th>
+                    <th>Avg Satisfaction</th>
+                    <th>Overtime %</th>
+                    <th>Burnout Score</th>
+                    <th>Risk Level</th>
+                  </tr>
+                </thead>
+                <tbody id="dept-intel-table-body">
+                  <tr><td colspan="12" style="text-align:center;">Loading department metrics...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Roles with High Attrition -->
+          <div class="chart-card full-width" style="margin-top:20px;">
             <div class="chart-header">
               <div>
                 <h3 class="chart-title">Attrition by Job Role (Top Risk)</h3>
-                <p class="chart-desc">Roles with highest observed turnover risk</p>
+                <p class="chart-desc">Roles with highest observed departure incidence across business units</p>
               </div>
             </div>
-            <div id="chart-role-attrition" class="chart-container"></div>
+            <div id="chart-role-attrition" class="chart-container" style="height:320px;"></div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Tenure -->
+        <div id="tab-attrition-tenure" class="tab-pane">
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">Attrition Rate by Tenure Band</h3>
+                  <p class="chart-desc">Departure vulnerability across organizational lifecycle</p>
+                </div>
+              </div>
+              <div id="chart-tenure-attrition" class="chart-container" style="height:300px;"></div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">Monthly Turnover Timeline Trend</h3>
+                  <p class="chart-desc">Historical monthly departure patterns and seasonality</p>
+                </div>
+              </div>
+              <div id="chart-monthly-trend" class="chart-container" style="height:300px;"></div>
+            </div>
           </div>
 
-          <div class="chart-card">
+          <div class="chart-card full-width" style="margin-top:20px;">
+            <h3 class="chart-title">Early Career Retention Vulnerability</h3>
+            <p class="chart-desc" style="margin-top:8px; line-height:1.65; color:var(--text-secondary);">
+              Empirical analysis confirms that <strong>52.2% of all employee exits</strong> occur within the first <strong>24 months of tenure</strong>. Employees with under 1 year of tenure show a <strong>26.4% departure rate</strong>, driven by rapid onboarding fatigue, expectations mismatch, and operational adjustment strain. Interventions should prioritize the 30-60-90 day milestone experience.
+            </p>
+          </div>
+        </div>
+
+        <!-- TAB 3: Compensation -->
+        <div id="tab-attrition-comp" class="tab-pane">
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">Monthly Salary Distribution by Turnover Status</h3>
+                  <p class="chart-desc">Compensation density comparison between retained and departed staff</p>
+                </div>
+              </div>
+              <div id="chart-salary-attrition" class="chart-container" style="height:300px;"></div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">Overtime Demands vs Attrition</h3>
+                  <p class="chart-desc">Impact of frequent overtime on employee departure incidence</p>
+                </div>
+              </div>
+              <div id="chart-overtime-attrition" class="chart-container" style="height:300px;"></div>
+            </div>
+          </div>
+
+          <div class="chart-card full-width" style="margin-top:20px;">
             <div class="chart-header">
               <div>
-                <h3 class="chart-title">Overtime Status vs Attrition</h3>
-                <p class="chart-desc">Impact of frequent overtime on employee departure</p>
+                <h3 class="chart-title">Job Level Progression & Turnover Rate</h3>
+                <p class="chart-desc">Attrition rates benchmarked across organizational seniority levels (1 = Entry, 5 = Executive)</p>
               </div>
             </div>
-            <div id="chart-overtime-attrition" class="chart-container"></div>
+            <div id="chart-joblevel-attrition" class="chart-container" style="height:280px;"></div>
           </div>
+        </div>
 
-          <div class="chart-card full-width">
-            <div class="chart-header">
-              <div>
-                <h3 class="chart-title">Attrition Rate by Tenure Band</h3>
-                <p class="chart-desc">Departure vulnerability across employee career lifecycle</p>
-              </div>
+        <!-- TAB 4: Satisfaction -->
+        <div id="tab-attrition-satisfaction" class="tab-pane">
+          <div class="table-card" style="margin-bottom:20px;">
+            <div class="table-header">
+              <h3 class="table-title">Stayers vs. Leavers Profile Comparison</h3>
+              <span class="badge badge-low">Empirical Dataset Averages</span>
             </div>
-            <div id="chart-tenure-attrition" class="chart-container"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =========================================================
-           MODULE 4: ATTRITION DEEP DIVE & STATISTICAL ANALYSIS
-           ========================================================= -->
-      <section id="mod-deepdive" class="view-section">
-        <div class="section-banner">
-          <h2>Attrition Deep Dive: Stayers vs. Leavers Comparative Analysis</h2>
-          <p>
-            Detailed comparative statistics across pay, tenure, satisfaction, and working conditions. Evaluates empirical divergences without making unverified causal claims.
-          </p>
-        </div>
-
-        <div class="table-card">
-          <div class="table-header">
-            <h3 class="table-title">Stayers vs. Leavers Profile Comparison</h3>
-            <span class="badge badge-low">Empirical Dataset Averages</span>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table" id="comparison-stats-table">
-              <thead>
-                <tr>
-                  <th>Metric / Characteristic</th>
-                  <th>Retained Stayers (No)</th>
-                  <th>Departed Leavers (Yes)</th>
-                  <th>Absolute Difference</th>
-                  <th>HR Business Interpretation</th>
-                </tr>
-              </thead>
-              <tbody id="comparison-stats-body">
-                <tr><td colspan="5" style="text-align:center;">Computing comparison statistics...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3 class="chart-title">Top Correlations with Attrition</h3>
-            <p class="chart-desc">Pearson correlation coefficient with binary attrition target</p>
-            <div id="chart-correlation-bars" class="chart-container"></div>
+            <div class="table-responsive">
+              <table class="data-table" id="comparison-stats-table">
+                <thead>
+                  <tr>
+                    <th>Metric / Characteristic</th>
+                    <th>Retained Stayers (No)</th>
+                    <th>Departed Leavers (Yes)</th>
+                    <th>Absolute Difference</th>
+                    <th>HR Business Interpretation</th>
+                  </tr>
+                </thead>
+                <tbody id="comparison-stats-body">
+                  <tr><td colspan="5" style="text-align:center;">Computing comparison statistics...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div class="chart-card">
-            <h3 class="chart-title">Data-Driven Analytical Insights</h3>
-            <div id="dynamic-insights-list" style="margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3 class="chart-title">Job Satisfaction Rating Breakdown</h3>
+              <p class="chart-desc">Proportion of exits across 1-5 survey satisfaction scores</p>
+              <div id="chart-satisfaction-attrition" class="chart-container" style="height:280px;"></div>
+            </div>
+
+            <div class="chart-card">
+              <h3 class="chart-title">Top Correlations with Attrition</h3>
+              <p class="chart-desc">Pearson correlation coefficient with binary attrition target</p>
+              <div id="chart-correlation-bars" class="chart-container" style="height:280px;"></div>
+            </div>
+          </div>
+
+          <div class="chart-card full-width" style="margin-top:20px;">
+            <h3 class="chart-title">Empirical Workforce Insights</h3>
+            <div id="dynamic-insights-list" style="margin-top:14px; display:flex; flex-direction:column; gap:12px;">
               <!-- Populated dynamically -->
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- =========================================================
-           MODULE 5: ATTRITION RATE CALCULATOR
-           ========================================================= -->
-      <section id="mod-calculator" class="view-section">
-        <div class="section-banner">
-          <h2>Workforce Attrition Rate Calculator</h2>
-          <p>
-            Standard enterprise headcount calculation using the standard HR analytics formula:
-            <code>Attrition Rate = (Departures in Period / Average Headcount) × 100</code> where
-            <code>Average Headcount = (Opening + Closing) / 2</code>.
-          </p>
-        </div>
+        <!-- TAB 5: Employee Directory -->
+        <div id="tab-attrition-explorer" class="tab-pane">
+          <!-- Filter & Search Bar -->
+          <div class="filter-bar">
+            <div class="filter-group" style="flex: 2; min-width: 220px;">
+              <label class="filter-label" for="explorer-search">Search Staff:</label>
+              <input type="text" id="explorer-search" placeholder="Search by ID, Role, Department, City..." class="filter-input" oninput="app.onExplorerSearch()">
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="explorer-dept">Department:</label>
+              <select id="explorer-dept" class="filter-select" onchange="app.loadEmployees(1)">
+                <option value="All">All Departments</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="explorer-role">Job Role:</label>
+              <select id="explorer-role" class="filter-select" onchange="app.loadEmployees(1)">
+                <option value="All">All Job Roles</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="explorer-level">Job Level:</label>
+              <select id="explorer-level" class="filter-select" onchange="app.loadEmployees(1)">
+                <option value="All">All Levels</option>
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4</option>
+                <option value="5">Level 5</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="explorer-status">Status:</label>
+              <select id="explorer-status" class="filter-select" onchange="app.loadEmployees(1)">
+                <option value="All">All Employees</option>
+                <option value="Active">Active Only</option>
+                <option value="Departed">Departed Only</option>
+              </select>
+            </div>
+            <button class="btn-secondary" onclick="app.exportFilteredCsv()">
+              <i data-lucide="download" style="width:14px;height:14px;"></i> Export CSV
+            </button>
+          </div>
 
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3 class="chart-title">Calculator Parameters</h3>
-            <div style="margin-top:16px;">
-              <div class="form-group" style="margin-bottom:14px;">
-                <label>Calculation Source:</label>
-                <select id="calc-source-mode" class="filter-select" style="width:100%;" onchange="app.toggleCalcMode()">
-                  <option value="dataset">Derived from Master Dataset Dates & Headcount</option>
-                  <option value="manual">Manual Enterprise Input Mode</option>
-                </select>
-              </div>
+          <!-- Employee Table -->
+          <div class="table-card" style="margin-top:16px;">
+            <div class="table-header">
+              <h3 class="table-title">Employee Roster Records</h3>
+              <span class="badge badge-low" id="explorer-total-badge">2,500 Personnel</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Employee ID (Masked)</th>
+                    <th>Department</th>
+                    <th>Job Role</th>
+                    <th>Level</th>
+                    <th>Monthly Salary</th>
+                    <th>Tenure</th>
+                    <th>Overtime</th>
+                    <th>Satisfaction</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="explorer-table-body">
+                  <tr><td colspan="9" style="text-align:center;">Loading employee records...</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-              <div id="calc-dataset-inputs">
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Department Scope:</label>
-                  <select id="calc-dept-select" class="filter-select" style="width:100%;">
-                    <option value="All">Entire Organization (All Departments)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div id="calc-manual-inputs" style="display:none;">
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Opening Headcount:</label>
-                  <input type="number" id="calc-in-opening" value="2500" min="1" oninput="app.executeCalculator()">
-                </div>
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Closing Headcount:</label>
-                  <input type="number" id="calc-in-closing" value="2050" min="0" oninput="app.executeCalculator()">
-                </div>
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Employees Who Left (Exits):</label>
-                  <input type="number" id="calc-in-exits" value="450" min="0" oninput="app.executeCalculator()">
-                </div>
-              </div>
-
-              <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="app.executeCalculator()">
-                <i data-lucide="calculator" style="width:16px;height:16px;"></i> Calculate Attrition Rate
+            <!-- Pagination Bar -->
+            <div class="pagination-bar">
+              <button id="explorer-prev-btn" class="page-btn" onclick="app.prevEmployeePage()">
+                <i data-lucide="chevron-left" style="width:14px;height:14px;"></i> Previous
+              </button>
+              <span id="explorer-page-info" class="page-info">Page 1 of 100 (25 per page)</span>
+              <button id="explorer-next-btn" class="page-btn" onclick="app.nextEmployeePage()">
+                Next <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
               </button>
             </div>
           </div>
+        </div>
+      </section>
 
+      <!-- =========================================================
+           MODULE 3: PREDICTION & MODEL (CONSOLIDATED)
+           ========================================================= -->
+      <section id="mod-predictor" class="view-section">
+        <div class="section-banner">
+          <h2>Predictive Intelligence & Machine Learning Diagnostics</h2>
+          <p>
+            Evaluate validated held-out performance benchmarks, simulate flight risk for individual staff or batch rosters, and examine feature explainability.
+          </p>
+        </div>
+
+        <!-- Sub-Navigation Tabs -->
+        <div class="app-tabs">
+          <button class="tab-btn active" data-tab="tab-model-performance">
+            <i data-lucide="award"></i> Model Performance
+          </button>
+          <button class="tab-btn" data-tab="tab-predict-attrition">
+            <i data-lucide="user-check"></i> Predict Attrition
+          </button>
+          <button class="tab-btn" data-tab="tab-model-explainability">
+            <i data-lucide="sparkles"></i> Explainability
+          </button>
+        </div>
+
+        <!-- TAB 1: Model Performance -->
+        <div id="tab-model-performance" class="tab-pane active">
+          <div class="callout-box">
+            <strong>The Accuracy Paradox in HR Analytics:</strong> A naive Dummy Classifier that predicts "No Attrition" for every single employee achieves <strong>82.0% Accuracy</strong>, yet fails to catch a single employee exit (Recall = 0.0%). Therefore, model selection must be driven by <strong>F1-score, Recall, and PR-AUC</strong>, not accuracy alone.
+          </div>
+
+          <div class="table-card">
+            <div class="table-header">
+              <h3 class="table-title">Held-Out Test Set Performance Comparison (500 Samples)</h3>
+              <span class="badge badge-low">Evaluated Strictly on Unseen Test Data</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table" id="models-comparison-table">
+                <thead>
+                  <tr>
+                    <th>Model Algorithm</th>
+                    <th>Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>ROC-AUC</th>
+                    <th>PR-AUC</th>
+                    <th>Selection Verdict</th>
+                  </tr>
+                </thead>
+                <tbody id="models-comparison-body">
+                  <tr><td colspan="8" style="text-align:center;">Loading model benchmarks...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ROC and PR Curves -->
+          <div class="charts-grid" style="margin-top:20px;">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">ROC Curves (Held-Out Test Data)</h3>
+                  <p class="chart-desc">Comparing Random Forest (0.745), Logistic Regression (0.732) vs Dummy Baseline (0.500)</p>
+                </div>
+              </div>
+              <div id="chart-roc-curve" class="chart-container" style="height:280px;"></div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">Precision-Recall Curves</h3>
+                  <p class="chart-desc">Evaluating performance on imbalanced positive class (18.0% Base Rate)</p>
+                </div>
+              </div>
+              <div id="chart-pr-curve" class="chart-container" style="height:280px;"></div>
+            </div>
+          </div>
+
+          <!-- Confusion Matrix & Error Tradeoffs -->
+          <div class="charts-grid" style="margin-top:20px;">
+            <div class="chart-card">
+              <h3 class="chart-title">Selected Model Confusion Matrix (Random Forest)</h3>
+              <p class="chart-desc">500 Unseen Test Employees (410 Stayers, 90 Departures)</p>
+              <div class="cm-container" id="cm-display-grid">
+                <div class="cm-cell tp">
+                  <div class="cm-number" id="cm-tp">42</div>
+                  <div class="cm-desc"><strong>True Positives</strong><br>Correctly identified exits</div>
+                </div>
+                <div class="cm-cell fn">
+                  <div class="cm-number" id="cm-fn">48</div>
+                  <div class="cm-desc"><strong>False Negatives</strong><br>Exits missed by model</div>
+                </div>
+                <div class="cm-cell fp">
+                  <div class="cm-number" id="cm-fp">51</div>
+                  <div class="cm-desc"><strong>False Positives</strong><br>False alarms (Stayers flagged)</div>
+                </div>
+                <div class="cm-cell tn">
+                  <div class="cm-number" id="cm-tn">359</div>
+                  <div class="cm-desc"><strong>True Negatives</strong><br>Correctly identified stayers</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h3 class="chart-title">HR Business Error Tradeoffs</h3>
+              <div style="margin-top:14px; font-size:0.86rem; line-height:1.6; color:var(--text-secondary);">
+                <p>• <strong>False Negatives (48 Missed Exits):</strong> Costliest business error in HR. High-value employees depart unexpectedly, incurring replacement costs (₹1,00,000+), recruitment delays, and operational friction.</p><br>
+                <p>• <strong>False Positives (51 False Alarms):</strong> Loyal employees flagged as potential exits. Resulting cost is minor: conducting proactive 1-on-1 check-ins or mentorship benefits engagement regardless.</p><br>
+                <p>• <strong>Operational Balance:</strong> Random Forest delivers <strong>45.2% Precision</strong> and <strong>46.7% Recall</strong>, striking the optimal F1 balance for HR intervention capacity.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Threshold Optimization Table (Progressive Disclosure) -->
+          <details class="expandable-panel">
+            <summary>
+              <div class="summary-label">
+                <i data-lucide="sliders" style="width:16px;height:16px;color:var(--accent-copper);"></i>
+                <span>Decision Threshold Tuning & Financial Exposure</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="badge badge-low" style="font-size:0.75rem;">Interactive Simulation</span>
+                <i data-lucide="chevron-down" class="summary-chevron" style="width:16px;height:16px;"></i>
+              </div>
+            </summary>
+            <div class="expandable-content">
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Simulating turnover replacement cost vs proactive intervention cost across probability cutoffs:</p>
+              <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                <table class="data-table" id="threshold-tuning-table">
+                  <thead>
+                    <tr>
+                      <th>Classification Threshold</th>
+                      <th>Precision</th>
+                      <th>Recall</th>
+                      <th>F1-Score</th>
+                      <th>Caught Exits (TP)</th>
+                      <th>Missed Exits (FN)</th>
+                      <th>False Alarms (FP)</th>
+                      <th>Estimated Turnover Cost (INR)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="threshold-tuning-body">
+                    <tr><td colspan="8" style="text-align:center;">Loading threshold optimization...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+
+          <!-- Model Training Experiments Log (Progressive Disclosure) -->
+          <details class="expandable-panel">
+            <summary>
+              <div class="summary-label">
+                <i data-lucide="history" style="width:16px;height:16px;color:var(--status-sapphire);"></i>
+                <span>Model Training Experiment History</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="badge badge-low" style="font-size:0.75rem;">SQLite Persistence</span>
+                <i data-lucide="chevron-down" class="summary-chevron" style="width:16px;height:16px;"></i>
+              </div>
+            </summary>
+            <div class="expandable-content">
+              <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Experiment ID</th>
+                      <th>Timestamp</th>
+                      <th>Model Algorithm</th>
+                      <th>CV Accuracy</th>
+                      <th>CV F1-Score</th>
+                      <th>CV ROC-AUC</th>
+                      <th>Test F1</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="experiments-body">
+                    <tr><td colspan="8" style="text-align:center;">Loading logged experiments...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- TAB 2: Predict Attrition -->
+        <div id="tab-predict-attrition" class="tab-pane">
+          <!-- Single Employee Predictor -->
           <div class="chart-card">
-            <h3 class="chart-title">Calculation Breakdown & Formula Output</h3>
-            <div id="calc-result-box" style="margin-top:16px;">
-              <div class="kpi-card crimson" style="margin-bottom:16px;">
-                <div class="kpi-label">Calculated Attrition Rate</div>
-                <div class="kpi-value" id="calc-res-rate">19.78%</div>
-                <div class="kpi-subtext" id="calc-res-source">Based on standard workforce formula</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+              <div>
+                <h3 class="chart-title">Individual Flight Risk Simulator</h3>
+                <p class="chart-desc">Select operational inputs or load ready-to-test demonstration profiles:</p>
+              </div>
+              <!-- Preset Quick-Fill Chips -->
+              <div class="preset-chips-container" style="margin-bottom:0;">
+                <span style="font-size:0.78rem; color:var(--text-muted);">Quick-Fill Presets:</span>
+                <button type="button" class="preset-chip" onclick="app.loadPreset('high_risk')">
+                  ⚡ High-Risk Flight Sample
+                </button>
+                <button type="button" class="preset-chip" onclick="app.loadPreset('low_risk')">
+                  🛡️ Low-Risk Loyal Sample
+                </button>
+                <button type="button" class="preset-chip" onclick="app.loadPreset('burnout')">
+                  🔥 Severe Burnout Sample
+                </button>
+              </div>
+            </div>
+
+            <form id="single-pred-form" onsubmit="event.preventDefault(); app.predictSingleEmployee();">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Department:</label>
+                  <select id="p-dept">
+                    <option value="Sales">Sales</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Delivery Operations">Delivery Operations</option>
+                    <option value="Warehouse and Fulfilment">Warehouse and Fulfilment</option>
+                    <option value="Customer Support">Customer Support</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Data Analytics">Data Analytics</option>
+                    <option value="Supply Chain">Supply Chain</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Human Resources">Human Resources</option>
+                    <option value="Finance">Finance</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Job Role:</label>
+                  <select id="p-role">
+                    <option value="Sales Executive">Sales Executive</option>
+                    <option value="Operations Associate">Operations Associate</option>
+                    <option value="Delivery Coordinator">Delivery Coordinator</option>
+                    <option value="Warehouse Supervisor">Warehouse Supervisor</option>
+                    <option value="Customer Support Executive">Customer Support Executive</option>
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="Data Analyst">Data Analyst</option>
+                    <option value="Supply Chain Analyst">Supply Chain Analyst</option>
+                    <option value="Manager">Manager</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Job Level (1 to 5):</label>
+                  <select id="p-level">
+                    <option value="1">1 - Entry / Associate</option>
+                    <option value="2" selected>2 - Mid / Specialist</option>
+                    <option value="3">3 - Senior / Lead</option>
+                    <option value="4">4 - Principal / Manager</option>
+                    <option value="5">5 - Director / Executive</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Monthly Base Salary (INR):</label>
+                  <input type="number" id="p-salary" value="48000" min="12000" max="250000" step="1000">
+                </div>
+
+                <div class="form-group">
+                  <label>Years at Company:</label>
+                  <input type="number" id="p-tenure" value="2.0" min="0" max="40" step="0.5">
+                </div>
+
+                <div class="form-group">
+                  <label>Total Work Experience (Years):</label>
+                  <input type="number" id="p-total-exp" value="6.0" min="0" max="45" step="0.5">
+                </div>
+
+                <div class="form-group">
+                  <label>Frequent Overtime Demands:</label>
+                  <select id="p-overtime">
+                    <option value="Yes" selected>Yes (Frequent Overtime)</option>
+                    <option value="No">No (Standard Hours)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Job Satisfaction Rating (1-5):</label>
+                  <select id="p-job-sat">
+                    <option value="1">1 - Very Dissatisfied</option>
+                    <option value="2" selected>2 - Dissatisfied</option>
+                    <option value="3">3 - Neutral</option>
+                    <option value="4">4 - Satisfied</option>
+                    <option value="5">5 - Highly Satisfied</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Work-Life Balance (1-5):</label>
+                  <select id="p-wlb">
+                    <option value="1" selected>1 - Severe Workload / Burnout Risk</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="3">3 - Good</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="5">5 - Excellent Balance</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Commute Distance From Home (KM):</label>
+                  <input type="number" id="p-distance" value="18" min="1" max="100">
+                </div>
+
+                <div class="form-group">
+                  <label>Years in Current Role:</label>
+                  <input type="number" id="p-role-tenure" value="1.5" min="0" max="20" step="0.5">
+                </div>
+
+                <div class="form-group">
+                  <label>Years Since Last Promotion:</label>
+                  <input type="number" id="p-promo-years" value="2.0" min="0" max="20" step="0.5">
+                </div>
               </div>
 
-              <div class="table-responsive">
-                <table class="data-table">
-                  <tbody>
+              <div style="display:flex; gap:12px; margin-top:12px;">
+                <button type="submit" class="btn-primary">
+                  <i data-lucide="zap" style="width:16px;height:16px;"></i> Evaluate Flight Risk
+                </button>
+                <button type="button" class="btn-secondary" onclick="app.resetPredictionForm()">
+                  <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> Reset Defaults
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Prediction Result Output Container -->
+          <div id="prediction-result-panel" class="prediction-result-panel" style="display:none; margin-top:20px;">
+            <div class="pred-header">
+              <div>
+                <h3 style="font-family:var(--font-heading); font-size:1.25rem;">Attrition Risk Assessment</h3>
+                <p style="font-size:0.84rem; color:var(--text-muted);">Calibrated Random Forest Ensemble Model</p>
+              </div>
+              <span id="pred-risk-badge" class="badge badge-high" style="font-size:0.95rem; padding:6px 14px;">High Risk</span>
+            </div>
+
+            <div class="pred-score-container">
+              <div>
+                <div class="kpi-label">Estimated Departure Probability</div>
+                <div id="pred-prob-value" class="pred-gauge" style="color:var(--status-crimson);">72.4%</div>
+              </div>
+              <div style="font-size:0.86rem; color:var(--text-secondary); max-width:550px; line-height:1.5;">
+                <span id="pred-disclaimer-text">
+                  The model identifies substantial risk factors correlating with departure. This is a statistical estimation, not a certainty. Proactive organizational check-ins are strongly advised.
+                </span>
+              </div>
+            </div>
+
+            <div class="pred-breakdown">
+              <div class="pred-driver-box">
+                <h4><i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;"></i> Key Contributing Risk Factors</h4>
+                <ul id="pred-factors-list">
+                  <!-- Populated dynamically -->
+                </ul>
+              </div>
+
+              <div class="pred-driver-box">
+                <h4><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Recommended HR Support Actions</h4>
+                <ul id="pred-actions-list">
+                  <!-- Populated dynamically -->
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Batch CSV Upload & Scoring Card -->
+          <div class="chart-card" style="margin-top:24px;">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Batch Workforce Scoring (CSV Upload)</h3>
+                <p class="chart-desc">Score hundreds of employees simultaneously to detect enterprise flight risk distribution</p>
+              </div>
+              <div>
+                <a href="/api/predict/sample-csv" class="btn-secondary" style="text-decoration:none;">
+                  <i data-lucide="download" style="width:14px;height:14px;"></i> Download Sample Batch CSV
+                </a>
+              </div>
+            </div>
+
+            <div class="upload-dropzone" onclick="document.getElementById('batch-file-input').click()">
+              <i data-lucide="upload-cloud" class="dropzone-icon"></i>
+              <h4 style="font-size:1rem; margin-bottom:4px;">Drag and drop an employee CSV or click to browse</h4>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Supports unlabelled employee roster files with standard columns</p>
+              <input type="file" id="batch-file-input" accept=".csv" style="display:none;" onchange="app.handleBatchFileUpload(event)">
+            </div>
+
+            <div id="batch-results-container" style="display:none;">
+              <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:16px;">
+                <div class="kpi-card highlight">
+                  <div class="kpi-label">Scored Records</div>
+                  <div class="kpi-value" id="batch-total">0</div>
+                </div>
+                <div class="kpi-card crimson">
+                  <div class="kpi-label">High Risk</div>
+                  <div class="kpi-value" id="batch-high">0</div>
+                </div>
+                <div class="kpi-card amber">
+                  <div class="kpi-label">Moderate Risk</div>
+                  <div class="kpi-value" id="batch-mod">0</div>
+                </div>
+                <div class="kpi-card emerald">
+                  <div class="kpi-label">Low Risk</div>
+                  <div class="kpi-value" id="batch-low">0</div>
+                </div>
+              </div>
+
+              <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                <table class="data-table" id="batch-preview-table">
+                  <thead>
                     <tr>
-                      <td><strong>Opening Headcount</strong></td>
-                      <td id="calc-res-opening">2,500</td>
+                      <th>Department</th>
+                      <th>Role</th>
+                      <th>Tenure</th>
+                      <th>Salary</th>
+                      <th>Probability</th>
+                      <th>Risk Band</th>
                     </tr>
-                    <tr>
-                      <td><strong>Closing Headcount</strong></td>
-                      <td id="calc-res-closing">2,050</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Average Headcount (Denominator)</strong></td>
-                      <td id="calc-res-avg">2,275.0</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Employees Departed (Numerator)</strong></td>
-                      <td id="calc-res-exits">450</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Formula Applied</strong></td>
-                      <td><code>(450 / 2,275.0) × 100 = 19.78%</code></td>
-                    </tr>
-                  </tbody>
+                  </thead>
+                  <tbody id="batch-preview-body"></tbody>
                 </table>
               </div>
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- =========================================================
-           MODULE 6: PREPROCESSING & DATA LEAKAGE AUDIT
-           ========================================================= -->
-      <section id="mod-preprocessing" class="view-section">
-        <div class="section-banner">
-          <h2>Data Cleaning, Preprocessing & Leakage Prevention Audit</h2>
-          <p>
-            Strict verification that model inputs reflect only information realistically accessible <em>prior</em> to an employee departure.
-          </p>
-        </div>
-
-        <div class="table-card">
-          <div class="table-header">
-            <h3 class="table-title">Data Leakage Prevention: Column Exclusion Registry</h3>
-            <span class="badge badge-high">Mandatory Engineering Rules</span>
+        <!-- TAB 3: Explainability -->
+        <div id="tab-model-explainability" class="tab-pane">
+          <div class="callout-box">
+            <strong>Correlation vs. Causation Warning:</strong> Variables with high permutation importance are strongly associated with historical attrition patterns, but are <em>not unilateral causal drivers</em>. HR initiatives should address systemic organizational health rather than treating individual variables in isolation.
           </div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Field Name</th>
-                  <th>Nature of Column</th>
-                  <th>Risk If Included</th>
-                  <th>Enforced Exclusion Rule</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>ExitDate</code></td>
-                  <td>Post-outcome event timestamp</td>
-                  <td>Directly reveals departure timing (100% target leakage)</td>
-                  <td><span class="badge badge-high">Permanently Excluded</span></td>
-                </tr>
-                <tr>
-                  <td><code>ExitType</code></td>
-                  <td>Voluntary vs Involuntary resignation label</td>
-                  <td>Only exists for exited personnel</td>
-                  <td><span class="badge badge-high">Permanently Excluded</span></td>
-                </tr>
-                <tr>
-                  <td><code>AttritionCategory</code> / <code>ExitReasonCategory</code></td>
-                  <td>Post-exit interview records</td>
-                  <td>Information recorded strictly after the employee leaves</td>
-                  <td><span class="badge badge-high">Permanently Excluded</span></td>
-                </tr>
-                <tr>
-                  <td><code>TenureAtExitYears</code></td>
-                  <td>Final tenure calculated upon departure</td>
-                  <td>Direct mathematical proxy for exit event</td>
-                  <td><span class="badge badge-high">Permanently Excluded</span></td>
-                </tr>
-                <tr>
-                  <td><code>EmploymentStatus</code></td>
-                  <td>Active vs Terminated indicator</td>
-                  <td>Direct duplicate encoding of target variable</td>
-                  <td><span class="badge badge-high">Permanently Excluded</span></td>
-                </tr>
-                <tr>
-                  <td><code>EmployeeID</code></td>
-                  <td>Arbitrary unique identifier</td>
-                  <td>Spurious memorization without predictive generalization</td>
-                  <td><span class="badge badge-high">Permanently Excluded</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
 
-        <div class="callout-box">
-          <strong>Ethical AI & Fairness Governance:</strong> Protected demographic attributes (<code>Gender</code>, <code>MaritalStatus</code>, and <code>Age</code>) are excluded from operational prediction features to prevent biased screening or algorithmic discrimination against vulnerable employee cohorts.
-        </div>
-      </section>
-
-      <!-- =========================================================
-           MODULE 7 & 8: MODEL ACCURACY & PERFORMANCE EVALUATION
-           ========================================================= -->
-      <section id="mod-model-eval" class="view-section">
-        <div class="section-banner">
-          <h2>Model Accuracy & Performance Evaluation</h2>
-          <p>
-            Honest evaluation on <strong>500 held-out test records (20% split)</strong> unseen during training. Includes baseline comparison to expose the Accuracy Paradox.
-          </p>
-        </div>
-
-        <div class="callout-box">
-          <strong>The Accuracy Paradox in HR Analytics:</strong> A naive Dummy Classifier that predicts "No Attrition" for every single employee achieves <strong>82.0% Accuracy</strong>, yet fails to catch a single employee exit (Recall = 0.0%). Therefore, model selection must be driven by <strong>F1-score, Recall, and PR-AUC</strong>, not accuracy alone!
-        </div>
-
-        <div class="table-card">
-          <div class="table-header">
-            <h3 class="table-title">Held-Out Test Set Performance Comparison (500 Samples)</h3>
-            <span class="badge badge-low">Evaluated Strictly on Unseen Test Data</span>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table" id="models-comparison-table">
-              <thead>
-                <tr>
-                  <th>Model Algorithm</th>
-                  <th>Accuracy</th>
-                  <th>Precision</th>
-                  <th>Recall</th>
-                  <th>F1-Score</th>
-                  <th>ROC-AUC</th>
-                  <th>PR-AUC</th>
-                  <th>Selection Verdict</th>
-                </tr>
-              </thead>
-              <tbody id="models-comparison-body">
-                <tr><td colspan="8" style="text-align:center;">Loading model benchmarks...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Interactive ROC and Precision-Recall Curves -->
-        <div class="charts-grid">
-          <div class="chart-card">
+          <div class="chart-card full-width">
             <div class="chart-header">
               <div>
-                <h3 class="chart-title">ROC Curves (Held-Out Test Data)</h3>
-                <p class="chart-desc">Comparing Random Forest (0.745), Logistic Regression (0.732) vs Dummy Baseline (0.500)</p>
+                <h3 class="chart-title">Permutation Feature Importance (ROC-AUC Score Degradation)</h3>
+                <p class="chart-desc">Shows how much ROC-AUC drops on held-out test data when each feature is randomly shuffled</p>
               </div>
             </div>
-            <div id="chart-roc-curve" class="chart-container"></div>
+            <div id="chart-permutation-importance" class="chart-container" style="height:320px;"></div>
           </div>
 
-          <div class="chart-card">
-            <div class="chart-header">
-              <div>
-                <h3 class="chart-title">Precision-Recall Curves</h3>
-                <p class="chart-desc">Evaluating performance on imbalanced positive class (18.0% Base Rate)</p>
-              </div>
+          <div class="charts-grid" style="margin-top:20px;">
+            <div class="chart-card">
+              <h3 class="chart-title">#1 Risk Driver: Burnout & Wellbeing Strain</h3>
+              <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
+                Permutation testing confirms that <strong>BurnoutRiskScore</strong> and <strong>StressLevel</strong> are the most potent discriminators of eventual resignation. Exited employees demonstrated an average burnout score of <strong>58.4</strong> compared to <strong>47.8</strong> among retained peers (+10.6 point divergence).
+              </p>
             </div>
-            <div id="chart-pr-curve" class="chart-container"></div>
-          </div>
-        </div>
-
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3 class="chart-title">Selected Model Confusion Matrix (Random Forest)</h3>
-            <p class="chart-desc">500 Unseen Test Employees (410 Stayers, 90 Departures)</p>
-            <div class="cm-container" id="cm-display-grid">
-              <div class="cm-cell tp">
-                <div class="cm-number" id="cm-tp">42</div>
-                <div class="cm-desc"><strong>True Positives</strong><br>Correctly identified exits</div>
-              </div>
-              <div class="cm-cell fn">
-                <div class="cm-number" id="cm-fn">48</div>
-                <div class="cm-desc"><strong>False Negatives</strong><br>Exits missed by model</div>
-              </div>
-              <div class="cm-cell fp">
-                <div class="cm-number" id="cm-fp">51</div>
-                <div class="cm-desc"><strong>False Positives</strong><br>False alarms (Stayers flagged)</div>
-              </div>
-              <div class="cm-cell tn">
-                <div class="cm-number" id="cm-tn">359</div>
-                <div class="cm-desc"><strong>True Negatives</strong><br>Correctly identified stayers</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="chart-card">
-            <h3 class="chart-title">HR Business Implications of Errors</h3>
-            <div style="margin-top:14px; font-size:0.86rem; line-height:1.6; color:var(--text-secondary);">
-              <p>• <strong>False Negatives (48 Missed Exits):</strong> Costliest business error in HR. High-value employees depart unexpectedly, resulting in replacement costs (₹1,00,000+), recruitment delays, and operational friction.</p><br>
-              <p>• <strong>False Positives (51 False Alarms):</strong> Loyal employees flagged as potential exits. Resulting cost is minor: conducting proactive 1-on-1 check-ins, recognition, or mentoring that benefits morale regardless.</p><br>
-              <p>• <strong>Decision Strategy:</strong> The Random Forest achieves <strong>45.2% Precision</strong> and <strong>46.7% Recall</strong>, yielding the optimal F1-score balance to maximize retention ROI without overwhelming HR capacity.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Threshold Optimization Table -->
-        <div class="table-card" style="margin-top:20px;">
-          <div class="table-header">
-            <div>
-              <h3 class="table-title">Threshold Tuning & Estimated Financial Exposure</h3>
-              <p class="table-desc" style="font-size:0.8rem; color:var(--text-muted);">Simulating turnover replacement cost vs proactive intervention cost across probability cutoffs</p>
-            </div>
-          </div>
-          <div class="table-responsive" style="max-height:360px; overflow-y:auto;">
-            <table class="data-table" id="threshold-tuning-table">
-              <thead>
-                <tr>
-                  <th>Classification Threshold</th>
-                  <th>Precision</th>
-                  <th>Recall</th>
-                  <th>F1-Score</th>
-                  <th>Caught Exits (TP)</th>
-                  <th>Missed Exits (FN)</th>
-                  <th>False Alarms (FP)</th>
-                  <th>Estimated Turnover Cost (INR)</th>
-                </tr>
-              </thead>
-              <tbody id="threshold-tuning-body">
-                <tr><td colspan="8" style="text-align:center;">Loading threshold optimization...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- =========================================================
-           MODULE 9: INTERACTIVE ATTRITION PREDICTION
-           ========================================================= -->
-      <section id="mod-predictor" class="view-section">
-        <div class="section-banner">
-          <h2>Interactive Employee Attrition Predictor</h2>
-          <p>
-            Evaluate flight risk for an individual employee. Computes probability using the calibrated Random Forest pipeline, identifies top risk drivers, and generates tailored HR retention actions.
-          </p>
-        </div>
-
-        <div class="chart-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-            <div>
-              <h3 class="chart-title">Employee Profile Parameters</h3>
-              <p class="chart-desc">Select operational inputs or load ready-to-test demonstration profiles:</p>
-            </div>
-            <!-- Preset Quick-Fill Chips -->
-            <div class="preset-chips-container" style="margin-bottom:0;">
-              <span style="font-size:0.78rem; color:var(--text-muted);">Quick-Fill Presets:</span>
-              <button type="button" class="preset-chip" onclick="app.loadPreset('high_risk')">
-                ⚡ High-Risk Flight Sample
-              </button>
-              <button type="button" class="preset-chip" onclick="app.loadPreset('low_risk')">
-                🛡️ Low-Risk Loyal Sample
-              </button>
-              <button type="button" class="preset-chip" onclick="app.loadPreset('burnout')">
-                🔥 Severe Burnout Sample
-              </button>
-            </div>
-          </div>
-
-          <form id="single-pred-form" onsubmit="event.preventDefault(); app.predictSingleEmployee();">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Department:</label>
-                <select id="p-dept">
-                  <option value="Sales">Sales</option>
-                  <option value="Operations">Operations</option>
-                  <option value="Delivery Operations">Delivery Operations</option>
-                  <option value="Warehouse and Fulfilment">Warehouse and Fulfilment</option>
-                  <option value="Customer Support">Customer Support</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Data Analytics">Data Analytics</option>
-                  <option value="Supply Chain">Supply Chain</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Human Resources">Human Resources</option>
-                  <option value="Finance">Finance</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Job Role:</label>
-                <select id="p-role">
-                  <option value="Sales Executive">Sales Executive</option>
-                  <option value="Operations Associate">Operations Associate</option>
-                  <option value="Delivery Coordinator">Delivery Coordinator</option>
-                  <option value="Warehouse Supervisor">Warehouse Supervisor</option>
-                  <option value="Customer Support Executive">Customer Support Executive</option>
-                  <option value="Software Engineer">Software Engineer</option>
-                  <option value="Data Analyst">Data Analyst</option>
-                  <option value="Supply Chain Analyst">Supply Chain Analyst</option>
-                  <option value="Manager">Manager</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Job Level (1 to 5):</label>
-                <select id="p-level">
-                  <option value="1">1 - Entry / Associate</option>
-                  <option value="2" selected>2 - Mid / Specialist</option>
-                  <option value="3">3 - Senior / Lead</option>
-                  <option value="4">4 - Principal / Manager</option>
-                  <option value="5">5 - Director / Executive</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Monthly Base Salary (INR):</label>
-                <input type="number" id="p-salary" value="48000" min="12000" max="250000" step="1000">
-              </div>
-
-              <div class="form-group">
-                <label>Years at Company:</label>
-                <input type="number" id="p-tenure" value="2.0" min="0" max="40" step="0.5">
-              </div>
-
-              <div class="form-group">
-                <label>Total Work Experience (Years):</label>
-                <input type="number" id="p-total-exp" value="6.0" min="0" max="45" step="0.5">
-              </div>
-
-              <div class="form-group">
-                <label>Frequent Overtime Demands:</label>
-                <select id="p-overtime">
-                  <option value="Yes" selected>Yes (Frequent Overtime)</option>
-                  <option value="No">No (Standard Hours)</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Job Satisfaction Rating (1-5):</label>
-                <select id="p-job-sat">
-                  <option value="1">1 - Very Dissatisfied</option>
-                  <option value="2" selected>2 - Dissatisfied</option>
-                  <option value="3">3 - Neutral</option>
-                  <option value="4">4 - Satisfied</option>
-                  <option value="5">5 - Highly Satisfied</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Work-Life Balance (1-5):</label>
-                <select id="p-wlb">
-                  <option value="1" selected>1 - Severe Workload / Burnout Risk</option>
-                  <option value="2">2 - Fair</option>
-                  <option value="3">3 - Good</option>
-                  <option value="4">4 - Very Good</option>
-                  <option value="5">5 - Excellent Balance</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Commute Distance From Home (KM):</label>
-                <input type="number" id="p-distance" value="18" min="1" max="100">
-              </div>
-
-              <div class="form-group">
-                <label>Years in Current Role:</label>
-                <input type="number" id="p-role-tenure" value="1.5" min="0" max="20" step="0.5">
-              </div>
-
-              <div class="form-group">
-                <label>Years Since Last Promotion:</label>
-                <input type="number" id="p-promo-years" value="2.0" min="0" max="20" step="0.5">
-              </div>
-            </div>
-
-            <div style="display:flex; gap:12px; margin-top:8px;">
-              <button type="submit" class="btn-primary">
-                <i data-lucide="zap" style="width:16px;height:16px;"></i> Evaluate Flight Risk
-              </button>
-              <button type="button" class="btn-secondary" onclick="app.resetPredictionForm()">
-                <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> Reset Defaults
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Prediction Result Output Container -->
-        <div id="prediction-result-panel" class="prediction-result-panel" style="display:none;">
-          <div class="pred-header">
-            <div>
-              <h3 style="font-family:var(--font-heading); font-size:1.25rem;">Attrition Risk Assessment</h3>
-              <p style="font-size:0.84rem; color:var(--text-muted);">Calibrated Random Forest Ensemble Model</p>
-            </div>
-            <span id="pred-risk-badge" class="badge badge-high" style="font-size:0.95rem; padding:6px 14px;">High Risk</span>
-          </div>
-
-          <div class="pred-score-container">
-            <div>
-              <div class="kpi-label">Estimated Departure Probability</div>
-              <div id="pred-prob-value" class="pred-gauge" style="color:var(--status-crimson);">72.4%</div>
-            </div>
-            <div style="font-size:0.86rem; color:var(--text-secondary); max-width:550px; line-height:1.5;">
-              <span id="pred-disclaimer-text">
-                The model identifies substantial risk factors correlating with departure. This is a statistical estimation, not a certainty. Proactive organizational check-ins are strongly advised.
-              </span>
-            </div>
-          </div>
-
-          <div class="pred-breakdown">
-            <div class="pred-driver-box">
-              <h4><i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;"></i> Key Contributing Risk Factors</h4>
-              <ul id="pred-factors-list">
-                <!-- Populated dynamically -->
-              </ul>
-            </div>
-
-            <div class="pred-driver-box">
-              <h4><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Recommended HR Support Actions</h4>
-              <ul id="pred-actions-list">
-                <!-- Populated dynamically -->
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Batch CSV Upload & Scoring Card -->
-        <div class="chart-card" style="margin-top:24px;">
-          <div class="chart-header">
-            <div>
-              <h3 class="chart-title">Batch Workforce Scoring (CSV Upload)</h3>
-              <p class="chart-desc">Score hundreds of employees simultaneously to detect enterprise flight risk distribution</p>
-            </div>
-            <div>
-              <a href="/api/predict/sample-csv" class="btn-secondary" style="text-decoration:none;">
-                <i data-lucide="download" style="width:14px;height:14px;"></i> Download Sample Batch CSV
-              </a>
-            </div>
-          </div>
-
-          <div class="upload-dropzone" onclick="document.getElementById('batch-file-input').click()">
-            <i data-lucide="upload-cloud" class="dropzone-icon"></i>
-            <h4 style="font-size:1rem; margin-bottom:4px;">Drag and drop an employee CSV or click to browse</h4>
-            <p style="font-size:0.8rem; color:var(--text-muted);">Supports unlabelled employee roster files with standard columns</p>
-            <input type="file" id="batch-file-input" accept=".csv" style="display:none;" onchange="app.handleBatchFileUpload(event)">
-          </div>
-
-          <div id="batch-results-container" style="display:none;">
-            <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:16px;">
-              <div class="kpi-card highlight">
-                <div class="kpi-label">Scored Records</div>
-                <div class="kpi-value" id="batch-total">0</div>
-              </div>
-              <div class="kpi-card crimson">
-                <div class="kpi-label">High Risk</div>
-                <div class="kpi-value" id="batch-high">0</div>
-              </div>
-              <div class="kpi-card amber">
-                <div class="kpi-label">Moderate Risk</div>
-                <div class="kpi-value" id="batch-mod">0</div>
-              </div>
-              <div class="kpi-card emerald">
-                <div class="kpi-label">Low Risk</div>
-                <div class="kpi-value" id="batch-low">0</div>
-              </div>
-            </div>
-
-            <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
-              <table class="data-table" id="batch-preview-table">
-                <thead>
-                  <tr>
-                    <th>Department</th>
-                    <th>Role</th>
-                    <th>Tenure</th>
-                    <th>Salary</th>
-                    <th>Probability</th>
-                    <th>Risk Band</th>
-                  </tr>
-                </thead>
-                <tbody id="batch-preview-body"></tbody>
-              </table>
+            <div class="chart-card">
+              <h3 class="chart-title">#2 Risk Driver: Workload & Overtime Ratio</h3>
+              <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
+                The engineered <strong>WorkloadBalanceIndex</strong> and <strong>OvertimeRatio</strong> rank within the top 5 predictive features. Staff regularly logging &gt;30 monthly overtime hours experience an <strong>1.88x relative exit likelihood</strong>, pinpointing physical fatigue as a major organizational vulnerability.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       <!-- =========================================================
-           MODULE 10: EXPLAINABILITY & MODEL DRIVERS
-           ========================================================= -->
-      <section id="mod-explainability" class="view-section">
-        <div class="section-banner">
-          <h2>Explainability & Feature Importance</h2>
-          <p>
-            Understand which factors contribute most heavily to the model's classifications using <strong>Permutation Importance</strong> on unseen test data.
-          </p>
-        </div>
-
-        <div class="callout-box">
-          <strong>Correlation vs. Causation Warning:</strong> Variables with high permutation importance are strongly associated with historical attrition patterns, but are <em>not unilateral causal drivers</em>. HR initiatives should address systemic organizational health rather than treating individual variables in isolation.
-        </div>
-
-        <div class="chart-card full-width">
-          <div class="chart-header">
-            <div>
-              <h3 class="chart-title">Permutation Feature Importance (ROC-AUC Score Degradation)</h3>
-              <p class="chart-desc">Shows how much ROC-AUC drops on held-out test data when each feature is randomly shuffled</p>
-            </div>
-          </div>
-          <div id="chart-permutation-importance" class="chart-container"></div>
-        </div>
-
-        <div class="charts-grid" style="margin-top:20px;">
-          <div class="chart-card">
-            <h3 class="chart-title">#1 Risk Driver: Burnout & Wellbeing Strain</h3>
-            <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
-              Permutation testing confirms that <strong>BurnoutRiskScore</strong> and <strong>StressLevel</strong> are the most potent discriminators of eventual resignation. Exited employees demonstrated an average burnout score of <strong>58.4</strong> compared to <strong>47.8</strong> among retained peers (+10.6 point divergence).
-            </p>
-          </div>
-          <div class="chart-card">
-            <h3 class="chart-title">#2 Risk Driver: Workload & Overtime Ratio</h3>
-            <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
-              The engineered <strong>WorkloadBalanceIndex</strong> and <strong>OvertimeRatio</strong> rank within the top 5 predictive features. Staff regularly logging &gt;30 monthly overtime hours experience an <strong>1.88x relative exit likelihood</strong>, pinpointing physical fatigue as a major organizational vulnerability.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- =========================================================
-           MODULE 11: RETENTION STRATEGY PLANNER & ROI SIMULATOR
+           MODULE 4: RETENTION STRATEGY (CONSOLIDATED)
            ========================================================= -->
       <section id="mod-retention" class="view-section">
         <div class="section-banner">
-          <h2>Retention Strategy Planner & Financial ROI Simulator</h2>
+          <h2>Retention Strategy & Financial ROI Simulator</h2>
           <p>
-            Translate predictive intelligence into evidence-grounded retention roadmaps and quantify the financial return on proactive retention investments.
+            Translate analytical intelligence into practical evidence-based interventions and quantify projected turnover cost savings.
           </p>
         </div>
 
@@ -1412,40 +1196,85 @@
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- =========================================================
-           MODULE 12: EXPERIMENT HISTORY
-           ========================================================= -->
-      <section id="mod-experiments" class="view-section">
-        <div class="section-banner">
-          <h2>Machine Learning Experiment History</h2>
-          <p>
-            Persisted audit trail of model training iterations logged to the local SQLite database (<code>data/attrition_analytics.db</code>).
-          </p>
-        </div>
-
-        <div class="table-card">
+        <!-- Action Plan Tracker -->
+        <div class="table-card" style="margin-top:24px;">
           <div class="table-header">
-            <h3 class="table-title">Experiment Audit Trail</h3>
-            <span class="badge badge-low">SQLite Persistence</span>
+            <div>
+              <h3 class="table-title">Organizational Retention Action Tracker</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Record, assign, and monitor department-level retention interventions (Persisted to SQLite)</p>
+            </div>
+            <span class="badge badge-low">Audit-Ready</span>
           </div>
-          <div class="table-responsive">
+
+          <!-- Add Action Plan Form -->
+          <div class="action-tracker-form">
+            <h4 style="font-size:0.95rem; color:var(--text-primary); margin-bottom:12px; font-weight:600;">Log New Retention Initiative</h4>
+            <form id="action-plan-form" onsubmit="app.saveActionPlan(event)">
+              <div class="action-form-grid">
+                <div class="form-group">
+                  <label for="action-dept">Department:</label>
+                  <select id="action-dept" class="filter-select" required>
+                    <option value="Delivery Operations">Delivery Operations</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Customer Support">Customer Support</option>
+                    <option value="Warehouse & Dark Stores">Warehouse & Dark Stores</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Product">Product</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Human Resources">Human Resources</option>
+                    <option value="Procurement">Procurement</option>
+                    <option value="Legal & Compliance">Legal & Compliance</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="action-issue">Observed Vulnerability / Trigger:</label>
+                  <input type="text" id="action-issue" placeholder="e.g. Overtime fatigue & 24.8% attrition" required>
+                </div>
+                <div class="form-group">
+                  <label for="action-plan">Intervention / Action Strategy:</label>
+                  <input type="text" id="action-plan" placeholder="e.g. Mandate max 20hr monthly overtime cap" required>
+                </div>
+                <div class="form-group">
+                  <label for="action-owner">Initiative Owner:</label>
+                  <input type="text" id="action-owner" placeholder="e.g. VP Operations / HRBP" required>
+                </div>
+                <div class="form-group">
+                  <label for="action-date">Target Review Date:</label>
+                  <input type="date" id="action-date" required>
+                </div>
+                <div class="form-group">
+                  <label for="action-status">Initial Status:</label>
+                  <select id="action-status" class="filter-select">
+                    <option value="Planned">Planned</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn-primary" style="margin-top:8px;">
+                <i data-lucide="plus-circle" style="width:15px;height:15px;"></i> Save Action Initiative
+              </button>
+            </form>
+          </div>
+
+          <!-- Active Action Plans Table -->
+          <div class="table-responsive" style="margin-top:16px;">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Experiment ID</th>
-                  <th>Timestamp</th>
-                  <th>Model Algorithm</th>
-                  <th>CV Accuracy</th>
-                  <th>CV F1-Score</th>
-                  <th>CV ROC-AUC</th>
-                  <th>Test F1</th>
+                  <th>Department</th>
+                  <th>Observed Issue</th>
+                  <th>Action Strategy</th>
+                  <th>Owner</th>
+                  <th>Target Date</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="experiments-body">
-                <tr><td colspan="8" style="text-align:center;">Loading logged experiments...</td></tr>
+              <tbody id="action-plans-table-body">
+                <tr><td colspan="7" style="text-align:center;">Loading action initiatives...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1453,101 +1282,345 @@
       </section>
 
       <!-- =========================================================
-           MODULE 13: REPORTS & DATA EXPORTS
+           MODULE 5: DATA & REPORTS (CONSOLIDATED)
            ========================================================= -->
-      <section id="mod-reports" class="view-section">
+      <section id="mod-upload" class="view-section">
         <div class="section-banner">
-          <h2>Reports & Analytical Data Export</h2>
+          <h2>Data Management, Governance & Enterprise Reports</h2>
           <p>
-            Generate and download comprehensive executive reports, model evaluation summaries, and dataset extracts.
+            Consolidated data ingestion, automated schema validation, data quality audits, exportable boardroom reports, and academic research methodology.
           </p>
         </div>
 
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3 class="chart-title">Executive HTML Report</h3>
-            <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
-              Download a self-contained, beautifully styled HTML document containing complete executive KPIs, stayers vs. leavers comparison tables, model evaluation confusion matrix, and retention roadmaps. Suitable for executive presentations.
-            </p>
-            <div style="margin-top:20px;">
-              <button class="btn-primary" onclick="app.downloadReport('html')">
-                <i data-lucide="file-check" style="width:16px;height:16px;"></i> Download Styled HTML Report
-              </button>
+        <!-- Sub-Navigation Tabs -->
+        <div class="app-tabs">
+          <button class="tab-btn active" data-tab="tab-data-upload">
+            <i data-lucide="upload-cloud"></i> Upload & Ingestion
+          </button>
+          <button class="tab-btn" data-tab="tab-data-quality">
+            <i data-lucide="shield-check"></i> Data Quality & Schema
+          </button>
+          <button class="tab-btn" data-tab="tab-data-reports">
+            <i data-lucide="file-text"></i> Reports & Exports
+          </button>
+          <button class="tab-btn" data-tab="tab-data-methodology">
+            <i data-lucide="book-open"></i> Methodology & Governance
+          </button>
+        </div>
+
+        <!-- TAB 1: Upload & Ingestion -->
+        <div id="tab-data-upload" class="tab-pane active">
+          <!-- Privacy & Security Notice Banner -->
+          <div class="callout-box" style="margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+              <strong>🔒 Ethical Privacy & Data Governance Standards:</strong>
+              <p style="margin-top:4px; font-size:0.84rem; color:var(--text-secondary);">
+                Uploaded data remains strictly local in-memory within your secure server session. PII (names, emails) is automatically masked. Protected demographics (Gender, Age, Marital Status) are never used in model inference.
+              </p>
+            </div>
+            <button class="btn-secondary" style="font-size:0.8rem; padding:6px 14px;" onclick="app.showPrivacyModal()">
+              <i data-lucide="shield-alert" style="width:14px;height:14px;"></i> View Full Privacy Guide
+            </button>
+          </div>
+
+          <div class="upload-grid">
+            <div class="upload-card">
+              <div class="upload-card-header">
+                <i data-lucide="upload-cloud" style="color:var(--accent-copper); width:20px; height:20px;"></i>
+                <h3 style="font-size:1.05rem; font-weight:600;">Ingest New Employee Dataset</h3>
+              </div>
+              <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:16px;">
+                Upload a CSV or Excel roster with employee features. The platform will automatically validate data types, run null checks, and refresh analytics dynamically.
+              </p>
+              
+              <div class="upload-dropzone" id="dataset-dropzone" onclick="document.getElementById('dataset-file-input').click()">
+                <i data-lucide="file-up" class="dropzone-icon"></i>
+                <h4 style="font-size:1rem; margin-bottom:4px;">Drag & drop employee file here</h4>
+                <p style="font-size:0.8rem; color:var(--text-muted);">Supports .csv, .xlsx, .xls up to 50MB</p>
+                <input type="file" id="dataset-file-input" accept=".csv, .xlsx, .xls" style="display:none;" onchange="app.handleDatasetUpload(event)">
+              </div>
+
+              <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; color:var(--text-muted);">Current Active Dataset: <strong>SnackRush Master Cohort</strong></span>
+                <button class="btn-secondary" style="font-size:0.8rem; padding:6px 12px;" onclick="app.resetDefaultDataset()">
+                  <i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i> Reset to Benchmark
+                </button>
+              </div>
+            </div>
+
+            <div class="upload-card">
+              <div class="upload-card-header">
+                <i data-lucide="check-circle" style="color:var(--status-emerald); width:20px; height:20px;"></i>
+                <h3 style="font-size:1.05rem; font-weight:600;">Ingestion Requirements & Rules</h3>
+              </div>
+              <ul class="schema-req-list" style="font-size:0.85rem; color:var(--text-secondary); line-height:1.65; padding-left:18px;">
+                <li><strong>Target Label:</strong> Must contain an <code>Attrition</code> column (values: <code>Yes</code> / <code>No</code> or <code>1</code> / <code>0</code>).</li>
+                <li><strong>Department & Role:</strong> Used for workforce breakdown charts and organizational benchmarking.</li>
+                <li><strong>Key Features:</strong> <code>MonthlySalaryINR</code>, <code>YearsAtCompany</code>, <code>Overtime</code>, and <code>JobSatisfaction</code>.</li>
+                <li><strong>Data Leakage Prohibition:</strong> Any column indicating post-exit timing (<code>ExitDate</code>, <code>ExitType</code>) is safely filtered out automatically.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Data Quality & Schema -->
+        <div id="tab-data-quality" class="tab-pane">
+          <!-- Quality Checks Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <h3 class="table-title">Live Schema Audit & Integrity Checks</h3>
+              <span class="badge badge-low">Automated Quality Pipeline</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Integrity Check</th>
+                    <th>Result</th>
+                    <th>Findings / Details</th>
+                  </tr>
+                </thead>
+                <tbody id="quality-checks-body">
+                  <tr><td colspan="3" style="text-align:center;">Auditing active dataset...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div class="chart-card">
-            <h3 class="chart-title">Technical Markdown Report</h3>
-            <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
-              Download a complete technical Markdown document formatted for version-controlled repositories, GitHub wikis, or project documentation dossiers.
-            </p>
-            <div style="margin-top:20px;">
-              <button class="btn-secondary" onclick="app.downloadReport('markdown')">
-                <i data-lucide="file-text" style="width:16px;height:16px;"></i> Download Markdown Report
-              </button>
+          <!-- Data Dictionary & Schema Table -->
+          <div class="table-card" style="margin-top:20px;">
+            <div class="table-header">
+              <div style="flex:1;">
+                <h3 class="table-title">Workforce Schema Dictionary</h3>
+                <p class="table-desc" style="font-size:0.8rem; color:var(--text-muted);">Variable taxonomy, data types, statistical ranges, and ethical governance status</p>
+              </div>
+              <div style="min-width:240px;">
+                <input type="text" id="dict-search-input" placeholder="Search schema attributes, data types, descriptions..." class="filter-input" oninput="app.filterDataDictionary()">
+              </div>
+            </div>
+            <div class="table-responsive" style="max-height:380px; overflow-y:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Definition</th>
+                    <th>Statistical Range / Values</th>
+                    <th>Governance Classification</th>
+                  </tr>
+                </thead>
+                <tbody id="data-dict-body">
+                  <tr><td colspan="5" style="text-align:center;">Loading schema dictionary...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: Reports & Exports -->
+        <div id="tab-data-reports" class="tab-pane">
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3 class="chart-title">Executive HTML Report</h3>
+              <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
+                Download a self-contained, beautifully styled HTML document containing complete executive KPIs, stayers vs. leavers comparison tables, model evaluation confusion matrix, and retention roadmaps. Suitable for executive presentations.
+              </p>
+              <div style="margin-top:20px;">
+                <button class="btn-primary" onclick="app.downloadReport('html')">
+                  <i data-lucide="file-check" style="width:16px;height:16px;"></i> Download Styled HTML Report
+                </button>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h3 class="chart-title">Technical Markdown Report</h3>
+              <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
+                Download a complete technical Markdown document formatted for version-controlled repositories, GitHub wikis, or project documentation dossiers.
+              </p>
+              <div style="margin-top:20px;">
+                <button class="btn-secondary" onclick="app.downloadReport('markdown')">
+                  <i data-lucide="file-text" style="width:16px;height:16px;"></i> Download Markdown Report
+                </button>
+              </div>
+            </div>
+
+            <div class="chart-card full-width">
+              <h3 class="chart-title">Export Cleaned Workforce Dataset</h3>
+              <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
+                Download the entire 2,500 employee master record (or filtered subset) in CSV format for offline reporting, spreadsheet modeling, or executive audit.
+              </p>
+              <div style="margin-top:16px;">
+                <button class="btn-secondary" onclick="app.exportFilteredCsv()">
+                  <i data-lucide="file-spreadsheet" style="width:16px;height:16px;"></i> Export Filtered Records (CSV)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: Methodology & Governance -->
+        <div id="tab-data-methodology" class="tab-pane">
+          <div class="table-card">
+            <div class="table-header">
+              <h3 class="table-title">MBA Capstone Methodology Dossier</h3>
+            </div>
+            <div style="padding:24px; font-size:0.9rem; line-height:1.7; color:var(--text-secondary);">
+              <h4 style="color:var(--accent-copper); font-size:1.05rem; margin-bottom:8px;">1. Business Problem Definition</h4>
+              <p>
+                Workforce attrition creates severe economic and cultural disruption. The objective of this system is to deploy supervised machine learning to detect early patterns of disengagement while strictly adhering to data leakage protocols and fair AI guidelines.
+              </p>
+
+              <h4 style="color:var(--accent-copper); font-size:1.05rem; margin:16px 0 8px 0;">2. Data Science Workflow & Split Hygiene</h4>
+              <p>
+                • <strong>Partitioning:</strong> The dataset is split into an 80% training set (2,000 records) and a 20% held-out test set (500 records) using stratified sampling.<br>
+                • <strong>Validation:</strong> Candidate models undergo 5-Fold Stratified Cross-Validation strictly inside the training split. Imputation and one-hot encoding are fitted only on training folds to prevent data leakage.<br>
+                • <strong>Final Evaluation:</strong> Metrics presented reflect strictly the 500 unseen test records.
+              </p>
+
+              <h4 style="color:var(--accent-copper); font-size:1.05rem; margin:16px 0 8px 0;">3. Evaluation Metric Selection & The Accuracy Paradox</h4>
+              <p>
+                Because the dataset exhibits an 18.0% attrition baseline, Accuracy is deceptive. <strong>Recall</strong> measures the percentage of genuine exits caught, while <strong>Precision</strong> measures the reliability of flags. <strong>F1-score</strong> provides the balanced harmonic mean. The <strong>Random Forest</strong> was selected as champion with F1 = 0.459 and ROC-AUC = 0.745.
+              </p>
             </div>
           </div>
 
-          <div class="chart-card full-width">
-            <h3 class="chart-title">Export Cleaned Workforce Dataset</h3>
-            <p class="chart-desc" style="margin-top:8px; line-height:1.6; color:var(--text-secondary);">
-              Download the entire 2,500 employee master record (or filtered subset) in CSV format for offline reporting, spreadsheet modeling, or executive audit.
-            </p>
-            <div style="margin-top:16px;">
-              <button class="btn-secondary" onclick="app.exportFilteredCsv()">
-                <i data-lucide="file-spreadsheet" style="width:16px;height:16px;"></i> Export Filtered Records (CSV)
+          <!-- Data Leakage Registry (Progressive Disclosure) -->
+          <details class="expandable-panel" open>
+            <summary>
+              <div class="summary-label">
+                <i data-lucide="shield-alert" style="width:16px;height:16px;color:var(--status-crimson);"></i>
+                <span>Data Leakage Prevention: Column Exclusion Registry</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="badge badge-high" style="font-size:0.75rem;">Mandatory Engineering Rules</span>
+                <i data-lucide="chevron-down" class="summary-chevron" style="width:16px;height:16px;"></i>
+              </div>
+            </summary>
+            <div class="expandable-content">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Field Name</th>
+                      <th>Nature of Column</th>
+                      <th>Risk If Included</th>
+                      <th>Enforced Exclusion Rule</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>ExitDate</code></td>
+                      <td>Offboarding Timestamp</td>
+                      <td>100% Target Leakage (Only exists if employee left)</td>
+                      <td><span class="badge badge-high">Permanently Dropped</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>ExitType</code></td>
+                      <td>Offboarding Category (Voluntary/Involuntary)</td>
+                      <td>Deterministic Leakage of Attrition = Yes</td>
+                      <td><span class="badge badge-high">Permanently Dropped</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>AttritionCategory</code></td>
+                      <td>Exit Granularity</td>
+                      <td>Direct derivative of the target variable</td>
+                      <td><span class="badge badge-high">Permanently Dropped</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>EmploymentStatus</code></td>
+                      <td>Active vs Terminated indicator</td>
+                      <td>Synonymous with binary attrition label</td>
+                      <td><span class="badge badge-high">Permanently Dropped</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+
+          <!-- Attrition Rate Calculator -->
+          <div class="charts-grid" style="margin-top:20px;">
+            <div class="chart-card">
+              <h3 class="chart-title">Workforce Attrition Calculator</h3>
+              <p class="chart-desc" style="margin-bottom:14px;">Standard HR analytics formula: <code>(Departures / Avg Headcount) × 100</code></p>
+              
+              <div class="form-group" style="margin-bottom:14px;">
+                <label>Calculation Source:</label>
+                <select id="calc-source-mode" class="filter-select" style="width:100%;" onchange="app.toggleCalcMode()">
+                  <option value="dataset">Derived from Master Dataset Dates & Headcount</option>
+                  <option value="manual">Manual Enterprise Input Mode</option>
+                </select>
+              </div>
+
+              <div id="calc-dataset-inputs">
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Department Scope:</label>
+                  <select id="calc-dept-select" class="filter-select" style="width:100%;">
+                    <option value="All">Entire Organization (All Departments)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="calc-manual-inputs" style="display:none;">
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Opening Headcount:</label>
+                  <input type="number" id="calc-in-opening" value="2500" min="1" oninput="app.executeCalculator()">
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Closing Headcount:</label>
+                  <input type="number" id="calc-in-closing" value="2050" min="0" oninput="app.executeCalculator()">
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Employees Who Left (Exits):</label>
+                  <input type="number" id="calc-in-exits" value="450" min="0" oninput="app.executeCalculator()">
+                </div>
+              </div>
+
+              <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="app.executeCalculator()">
+                <i data-lucide="calculator" style="width:16px;height:16px;"></i> Calculate Attrition Rate
               </button>
+            </div>
+
+            <div class="chart-card">
+              <h3 class="chart-title">Calculation Breakdown & Formula Output</h3>
+              <div id="calc-result-box" style="margin-top:16px;">
+                <div class="kpi-card crimson" style="margin-bottom:16px;">
+                  <div class="kpi-label">Calculated Attrition Rate</div>
+                  <div class="kpi-value" id="calc-res-rate">19.78%</div>
+                  <div class="kpi-subtext" id="calc-res-source">Based on standard workforce formula</div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <tbody>
+                      <tr>
+                        <td><strong>Opening Headcount</strong></td>
+                        <td id="calc-res-opening">2,500</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Closing Headcount</strong></td>
+                        <td id="calc-res-closing">2,050</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Average Headcount (Denominator)</strong></td>
+                        <td id="calc-res-avg">2,275.0</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Employees Departed (Numerator)</strong></td>
+                        <td id="calc-res-exits">450</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Formula Applied</strong></td>
+                        <td><code>(450 / 2,275.0) × 100 = 19.78%</code></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- =========================================================
-           MODULE 14: METHODOLOGY & CAPSTONE DOCUMENTATION
-           ========================================================= -->
-      <section id="mod-methodology" class="view-section">
-        <div class="section-banner">
-          <h2>MBA Business Analytics Project Methodology</h2>
-          <p>
-            Comprehensive academic and technical documentation for the Master of Business Administration analytics capstone deliverable.
-          </p>
-        </div>
-
-        <div class="table-card">
-          <div class="table-header">
-            <h3 class="table-title">Methodology Dossier</h3>
-          </div>
-          <div style="padding:24px; font-size:0.9rem; line-height:1.7; color:var(--text-secondary);">
-            <h4 style="color:var(--accent-copper); font-size:1.05rem; margin-bottom:8px;">1. Business Problem Definition</h4>
-            <p>
-              Workforce attrition creates severe economic and cultural disruption. The objective of this system is to deploy supervised machine learning to detect early patterns of disengagement while strictly adhering to data leakage protocols and fair AI guidelines.
-            </p>
-
-            <h4 style="color:var(--accent-copper); font-size:1.05rem; margin:16px 0 8px 0;">2. Data Science Workflow & Split Hygiene</h4>
-            <p>
-              • <strong>Partitioning:</strong> The dataset is split into an 80% training set (2,000 records) and a 20% held-out test set (500 records) using stratified sampling.<br>
-              • <strong>Validation:</strong> Candidate models undergo 5-Fold Stratified Cross-Validation strictly inside the training split. Imputation and one-hot encoding are fitted only on training folds to prevent data leakage.<br>
-              • <strong>Final Evaluation:</strong> Metrics presented to decision makers reflect strictly the 500 unseen test records.
-            </p>
-
-            <h4 style="color:var(--accent-copper); font-size:1.05rem; margin:16px 0 8px 0;">3. Evaluation Metric Selection</h4>
-            <p>
-              Because the dataset exhibits an 18.0% attrition rate, Accuracy is deceptive (the Accuracy Paradox). <strong>Recall</strong> measures the percentage of genuine exits successfully caught, while <strong>Precision</strong> measures the reliability of flags. <strong>F1-score</strong> provides the harmonic mean. The <strong>Random Forest</strong> was selected as the optimal production pipeline with F1 = 0.459 and ROC-AUC = 0.745.
-            </p>
-
-            <h4 style="color:var(--accent-copper); font-size:1.05rem; margin:16px 0 8px 0;">4. Limitations & Future Scope</h4>
-            <p>
-              • Historical cross-sectional snapshots cannot capture longitudinal real-time sentiment fluctuations.<br>
-              • Recommendations represent organizational starting points, not causal guarantees.<br>
-              • Future enhancements could incorporate NLP sentiment analysis of open-ended employee pulse surveys and live HRIS integrations.
-            </p>
-          </div>
-        </div>
-      </section>
-
-    </div>
-  </main>
-</div>
 
 <!-- System Guide Modal -->
 <div id="guide-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) app.closeTourModal()">
@@ -1588,6 +1661,61 @@
         <li><strong>Retention Strategy & ROI:</strong> Adjust the financial simulator sliders to view net turnover cost savings.</li>
         <li><strong>Executive Reports:</strong> Download the styled standalone HTML boardroom presentation report.</li>
       </ol>
+    </div>
+  </div>
+</div>
+
+<!-- Privacy & Data Governance Modal -->
+<div id="privacy-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) app.closePrivacyModal()">
+  <div class="modal-box" style="max-width:720px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <i data-lucide="shield-check" style="color:var(--status-emerald); width:22px; height:22px;"></i>
+        <h3 class="modal-title">Ethical AI, Privacy & Data Governance Standard</h3>
+      </div>
+      <button class="modal-close-btn" onclick="app.closePrivacyModal()">
+        <i data-lucide="x" style="width:20px;height:20px;"></i>
+      </button>
+    </div>
+    <div class="modal-body" style="font-size:0.88rem; line-height:1.65;">
+      <div class="callout-box" style="margin-bottom:16px;">
+        <strong>Core Governance Principle:</strong> People Intelligence is an advisory decision support system. It must <strong>never</strong> be used for punitive employment actions, termination decisions, or discriminatory profiling.
+      </div>
+
+      <h4 style="color:var(--status-emerald); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+        <i data-lucide="eye" style="width:16px;height:16px;"></i> What the Public & General Stakeholders CAN See:
+      </h4>
+      <ul style="padding-left:20px; margin-bottom:16px; color:var(--text-secondary);">
+        <li><strong>Macro Workforce Statistics:</strong> Total employee counts, overall attrition percentage (18.0%), and average organizational tenure.</li>
+        <li><strong>Department Comparison Trends:</strong> Relative turnover rates across business units (e.g., Delivery Ops 24.8% vs. Legal 9.2%).</li>
+        <li><strong>Model Accuracy & Audit Metrics:</strong> Held-out test performance, ROC-AUC, F1-scores, and honest comparison with baseline dummy models.</li>
+        <li><strong>Global Feature Rankings:</strong> Permutation importance showing systemic risk factors (overtime burden, burnout scores).</li>
+        <li><strong>Evidence-Based Retention Roadmaps:</strong> Strategic interventions, manager training, and financial ROI simulator models.</li>
+      </ul>
+
+      <h4 style="color:var(--status-crimson); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+        <i data-lucide="eye-off" style="width:16px;height:16px;"></i> What the Public CANNOT See (Redacted / Strictly Confidential):
+      </h4>
+      <ul style="padding-left:20px; margin-bottom:16px; color:var(--text-secondary);">
+        <li><strong>Identifiable Employee PII:</strong> Names, personal phone numbers, emails, and home addresses are never published. Employee IDs are masked (e.g. <code>EMP-***142</code>).</li>
+        <li><strong>Public Individual Flight Risk Labels:</strong> Openly labeling a specific named person as "High Flight Risk" is strictly forbidden to prevent managerial bias, retaliation, or withheld promotions.</li>
+        <li><strong>Exact Individual Compensation:</strong> Individual salaries are private personnel records. The public view displays anonymized salary bands only.</li>
+        <li><strong>Protected Demographic Variables in ML:</strong> Gender, Age, and Marital Status are excluded from machine learning operational features to guarantee zero algorithmic discrimination.</li>
+        <li><strong>Offboarding Grievance Records:</strong> Specific exit interview allegations or interpersonal disputes involving managers.</li>
+      </ul>
+
+      <div style="background:var(--bg-input); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); margin-top:14px;">
+        <h5 style="color:var(--text-primary); font-size:0.86rem; margin-bottom:6px;">Regulatory Compliance Standards:</h5>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+          Conforms with <strong>GDPR Article 22</strong> (Human-in-the-loop oversight on automated decision systems), the <strong>India Digital Personal Data Protection (DPDP) Act 2023</strong> (Purpose limitation & privacy by design), and <strong>EEOC Uniform Guidelines on Employee Selection Procedures</strong>.
+        </p>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+        <button class="btn-primary" onclick="app.closePrivacyModal()">
+          <i data-lucide="check" style="width:16px;height:16px;"></i> Understood & Acknowledged
+        </button>
+      </div>
     </div>
   </div>
 </div>
