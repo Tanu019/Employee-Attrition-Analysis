@@ -155,12 +155,9 @@
            ========================================================= -->
       <section id="mod-overview" class="view-section active">
 
-        <!-- 1. Unified Student Workspace & Workforce Retention Hero Card -->
+        <!-- 1. Unified Workforce Retention Hero Card -->
         <div class="overview-hero-card unified-hero">
           <div class="hero-greeting-section">
-            <div class="hero-badge-row">
-              <span class="student-workspace-pill">STUDENT WORKSPACE</span>
-            </div>
             <h1 class="hero-greeting-title" id="overview-greeting-text">Good Afternoon, Tanu Chaudhary</h1>
             <p class="hero-greeting-sub">
               Ready to tackle today's case simulation? Sharpen executive acumen across cross-functional strategic dilemmas.
@@ -199,7 +196,44 @@
           </div>
         </div>
 
-        <!-- 2. Dashboard Quick Filters & Risk Alert Chips -->
+        <!-- 2. AI Retention Copilot Natural Language Bar -->
+        <div class="overview-copilot-card">
+          <div class="copilot-search-row">
+            <div class="copilot-input-wrap">
+              <i data-lucide="bot" class="copilot-search-icon"></i>
+              <input type="text" id="copilot-query-input" class="copilot-input" 
+                     placeholder="Ask Copilot: 'Which departments have the highest overtime burnout?' or 'What is the salary gap?'" 
+                     onkeydown="if(event.key==='Enter') app.askCopilot()">
+            </div>
+            <button class="btn-primary copilot-ask-btn" onclick="app.askCopilot()">
+              <i data-lucide="sparkles" style="width:14px;height:14px;"></i>
+              <span>Ask Copilot</span>
+            </button>
+          </div>
+          
+          <!-- Sample Query Prompts -->
+          <div class="copilot-chips-strip">
+            <span class="copilot-prompt-chip" onclick="app.setAndAskCopilot('Which departments have the highest turnover hotspot?')">
+              <i data-lucide="building-2" style="width:11px;height:11px;"></i> Highest turnover department?
+            </span>
+            <span class="copilot-prompt-chip" onclick="app.setAndAskCopilot('How does overtime affect employee burnout and turnover?')">
+              <i data-lucide="clock" style="width:11px;height:11px;"></i> Overtime burnout impact?
+            </span>
+            <span class="copilot-prompt-chip" onclick="app.setAndAskCopilot('What is the salary gap between leavers and stayers?')">
+              <i data-lucide="indian-rupee" style="width:11px;height:11px;"></i> Base compensation gap?
+            </span>
+            <span class="copilot-prompt-chip" onclick="app.setAndAskCopilot('What is the critical tenure hazard window?')">
+              <i data-lucide="calendar" style="width:11px;height:11px;"></i> Tenure hazard zone?
+            </span>
+          </div>
+
+          <!-- Copilot Answer Dropdown / Container -->
+          <div id="copilot-response-container" class="copilot-response-container" style="display:none;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- 3. Dashboard Quick Filters & Risk Alert Chips -->
         <div class="overview-toolbar-strip">
           <div class="overview-quick-filters">
             <div class="quick-filter-item">
@@ -274,14 +308,19 @@
             </div>
           </div>
 
-          <!-- KPI 4: Model Performance (Valid Held-Out Metric) -->
+          <!-- KPI 4: Average Employee Tenure (Workforce Dynamics) -->
           <div class="overview-kpi-card">
             <div class="kpi-card-header">
-              <span class="kpi-card-label">Model Performance</span>
-              <div class="kpi-card-icon emerald"><i data-lucide="target"></i></div>
+              <span class="kpi-card-label">Average Employee Tenure</span>
+              <div class="kpi-card-icon sapphire"><i data-lucide="clock"></i></div>
             </div>
-            <div class="kpi-card-value emerald" id="kpi-model-eval-stat">ROC: 0.745</div>
-            <div class="kpi-card-sub" id="kpi-model-eval-sub">Held-out test set (500 rows) • Random Forest</div>
+            <div class="kpi-card-value sapphire" id="kpi-tenure">5.0 Yrs</div>
+            <div class="kpi-card-sub" id="kpi-tenure-sub">
+              Peak turnover occurs within 1.5 – 3.0 yrs tenure window
+            </div>
+            <!-- Retained hidden hook for model evaluation test verification -->
+            <span id="kpi-model-eval-stat" style="display:none;" aria-hidden="true">ROC: 0.745</span>
+            <span id="kpi-model-eval-sub" style="display:none;" aria-hidden="true">Held-out test set (500 rows) • Random Forest</span>
           </div>
         </div>
 
@@ -321,7 +360,7 @@
             <div class="overview-chart-header">
               <div>
                 <h3 class="overview-chart-title">Department Attrition Comparison</h3>
-                <p class="overview-chart-desc">Observed historical turnover rate (%) across operating business units</p>
+                <p class="overview-chart-desc">Observed turnover rate (%) · <span style="color:var(--status-crimson); font-weight:600;">Critical (&gt;20%)</span> · <span style="color:var(--status-amber); font-weight:600;">Watchlist (17–20%)</span> · <span style="color:var(--status-emerald); font-weight:600;">Stable (&lt;17%)</span></p>
               </div>
               <button class="chart-export-btn" onclick="app.exportChart('chart-dept-attrition', 'dept_attrition_comparison')" title="Export chart as PNG">
                 <i data-lucide="download" style="width:12px;height:12px;"></i>

@@ -16,6 +16,8 @@ const DARK_THEME = {
   bgElevated: '#272D32', // Elevated surface
   bgSidebar: '#15181B', // Sidebar background
   borderCard: '#343B40', // Borders & dividers
+  barDefault: '#3A424A', // Solid, visible dark slate bar
+  barDefaultLine: '#4D5863',
   textPrimary: '#F2F4F3', // Main text
   textSecondary: '#A5ADB3', // Secondary text
   textMuted: '#7F8B91', // Muted labels
@@ -31,9 +33,11 @@ const LIGHT_THEME = {
   crimson: '#E11D48', // High risk / Departures
   sapphire: '#2563EB', // Informational / Primary series
   bgCard: '#FFFFFF',
-  bgElevated: '#F1F5F9', // Crisp light slate surface for baseline bars
+  bgElevated: '#F1F5F9', // Crisp light slate surface for panels
   bgSidebar: '#F8FAFC',
   borderCard: '#E2E8F0', // Clean subtle gridlines
+  barDefault: '#64748B', // Solid slate-500: crisp contrast against white card
+  barDefaultLine: '#475569',
   textPrimary: '#0F172A', // Deep slate for high contrast
   textSecondary: '#475569', // Crisp secondary labels
   textMuted: '#64748B',
@@ -621,6 +625,78 @@ class AttritionApp {
     }
   }
 
+  // --- AI Retention Copilot Controller ---
+  setAndAskCopilot(queryText) {
+    const input = document.getElementById('copilot-query-input');
+    if (input) input.value = queryText;
+    this.askCopilot();
+  }
+
+  async askCopilot() {
+    const input = document.getElementById('copilot-query-input');
+    const query = input?.value.trim();
+    if (!query) return;
+
+    const container = document.getElementById('copilot-response-container');
+    if (!container) return;
+
+    container.style.display = 'flex';
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:0.84rem;">
+        <i data-lucide="loader-2" class="spin-icon" style="width:16px;height:16px;color:var(--accent-lime);"></i>
+        <span>Synthesizing intelligence from ${this.cachedData.overview?.validation?.total_rows?.toLocaleString() || '2,500'} employee records...</span>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+      const res = await fetch('/api/copilot/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+
+      if (!res.ok) throw new Error("Copilot response error");
+      const data = await res.json();
+
+      container.innerHTML = `
+        <div class="copilot-res-header">
+          <span class="copilot-res-badge"><i data-lucide="sparkles" style="width:11px;height:11px;"></i> ${data.category || 'Copilot Analysis'}</span>
+          <button onclick="document.getElementById('copilot-response-container').style.display='none'" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;" title="Dismiss">
+            <i data-lucide="x" style="width:14px;height:14px;"></i>
+          </button>
+        </div>
+        <div class="copilot-res-headline">${data.headline}</div>
+        <div class="copilot-res-answer">${data.answer}</div>
+        ${data.metrics ? `
+          <div class="copilot-res-metrics">
+            ${data.metrics.map(m => `
+              <div class="copilot-metric-pill">
+                <span class="copilot-metric-pill-label">${m.label}</span>
+                <span class="copilot-metric-pill-val">${m.value}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        ${data.recommendation ? `
+          <div class="copilot-res-rec">
+            <i data-lucide="shield-check" style="width:15px;height:15px;color:var(--status-emerald);flex-shrink:0;margin-top:2px;"></i>
+            <span><strong>Copilot Recommendation:</strong> ${data.recommendation}</span>
+          </div>
+        ` : ''}
+      `;
+      if (window.lucide) window.lucide.createIcons();
+    } catch (err) {
+      container.innerHTML = `
+        <div style="color:var(--status-crimson);font-size:0.84rem;">
+          <i data-lucide="alert-circle" style="width:14px;height:14px;margin-right:6px;display:inline-block;"></i>
+          Unable to process query. Please ensure backend services are active.
+        </div>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+
   applyOverviewFilter(type, value) {
     if (type === 'dept') {
       const target = document.getElementById('filter-dept');
@@ -1149,33 +1225,66 @@ class AttritionApp {
       const sorted = [...data.department_breakdown].sort((a, b) => a.Attrition_Rate_Pct - b.Attrition_Rate_Pct);
       const depts = sorted.map(d => d.Department);
       const rates = sorted.map(d => d.Attrition_Rate_Pct);
+      const isLight = (THEME.bgCard === '#FFFFFF');
+
+      // 3-Tier Risk Palette: Critical (>20%) = Crimson, Watchlist (17-20%) = Amber, Controlled (<17%) = Emerald
+      const barColors = rates.map(r => {
+        if (r >= 20.0) return THEME.crimson;
+        if (r >= 17.0) return THEME.amber;
+        return THEME.emerald;
+      });
+
+      const textColors = rates.map(() => isLight ? '#FFFFFF' : '#111315');
+      const maxRate = Math.max(...rates);
+
       const deptData = [{
         type: 'bar',
         orientation: 'h',
         x: rates,
         y: depts,
         marker: {
-          color: rates.map(r => r > 20 ? THEME.copper : THEME.bgElevated),
-          line: { color: rates.map(r => r > 20 ? THEME.copper : THEME.borderCard), width: 1 }
+          color: barColors,
+          line: { color: barColors, width: 1 }
         },
         text: rates.map(r => `${r}%`),
         textposition: 'inside',
         insidetextanchor: 'end',
-        textfont: { color: rates.map(r => r > 20 ? '#FFFFFF' : THEME.textPrimary), size: 11, family: THEME.fontFamily, weight: 600 }
+        textfont: {
+          color: textColors,
+          size: 11,
+          family: THEME.fontFamily,
+          weight: 600
+        }
       }];
+
       const deptLayout = {
         ...defaultLayout,
         xaxis: {
           title: 'Attrition Rate (%)',
           gridcolor: THEME.borderCard,
           zerolinecolor: THEME.borderCard,
-          tickfont: { color: THEME.textSecondary, size: 10 }
+          tickfont: { color: THEME.textSecondary, size: 10 },
+          range: [0, Math.ceil(maxRate + 2.5)]
         },
         yaxis: {
           automargin: true,
           tickfont: { color: THEME.textPrimary, size: 11 }
         },
-        margin: { l: 110, r: 25, t: 15, b: 35 }
+        margin: { l: 125, r: 25, t: 15, b: 35 },
+        shapes: [
+          {
+            type: 'line',
+            x0: 18.0,
+            x1: 18.0,
+            y0: -0.5,
+            y1: depts.length - 0.5,
+            line: {
+              color: isLight ? 'rgba(71, 85, 105, 0.45)' : 'rgba(255, 255, 255, 0.35)',
+              width: 1.5,
+              dash: 'dash'
+            }
+          }
+        ]
       };
       Plotly.newPlot('chart-dept-attrition', deptData, deptLayout, { responsive: true, displayModeBar: false });
     }
@@ -1208,17 +1317,23 @@ class AttritionApp {
       const tenures = data.tenure_breakdown.map(d => d.TenureBand);
       const rates = data.tenure_breakdown.map(d => d.Attrition_Rate_Pct);
       const maxTenureRate = Math.max(...rates);
+      const isLight = (THEME.bgCard === '#FFFFFF');
       const tenureData = [{
         x: tenures,
         y: rates,
         type: 'bar',
         marker: {
-          color: rates.map(r => r === maxTenureRate ? THEME.copper : THEME.bgElevated),
-          line: { color: rates.map(r => r === maxTenureRate ? THEME.copper : THEME.borderCard), width: 1 }
+          color: rates.map(r => r === maxTenureRate ? THEME.copper : (THEME.barDefault || '#64748B')),
+          line: { color: rates.map(r => r === maxTenureRate ? THEME.copper : (THEME.barDefaultLine || '#475569')), width: 1 }
         },
         text: rates.map(r => `${r}%`),
         textposition: 'auto',
-        textfont: { family: THEME.fontFamily, size: 11, color: THEME.textPrimary }
+        textfont: {
+          family: THEME.fontFamily,
+          size: 11,
+          color: rates.map(r => r === maxTenureRate ? '#FFFFFF' : (isLight ? '#FFFFFF' : THEME.textPrimary)),
+          weight: 600
+        }
       }];
       const tenureLayout = {
         ...defaultLayout,
@@ -1233,17 +1348,23 @@ class AttritionApp {
       const bands = data.salary_breakdown.map(d => d.SalaryBand);
       const rates = data.salary_breakdown.map(d => d.AttritionRate);
       const maxSalaryRate = Math.max(...rates);
+      const isLight = (THEME.bgCard === '#FFFFFF');
       const salaryData = [{
         x: bands,
         y: rates,
         type: 'bar',
         marker: {
-          color: rates.map(r => r === maxSalaryRate ? THEME.copper : THEME.bgElevated),
-          line: { color: rates.map(r => r === maxSalaryRate ? THEME.copper : THEME.borderCard), width: 1 }
+          color: rates.map(r => r === maxSalaryRate ? THEME.copper : (THEME.barDefault || '#64748B')),
+          line: { color: rates.map(r => r === maxSalaryRate ? THEME.copper : (THEME.barDefaultLine || '#475569')), width: 1 }
         },
         text: rates.map(r => `${r}%`),
         textposition: 'auto',
-        textfont: { family: THEME.fontFamily, size: 11, color: THEME.textPrimary }
+        textfont: {
+          family: THEME.fontFamily,
+          size: 11,
+          color: rates.map(r => r === maxSalaryRate ? '#FFFFFF' : (isLight ? '#FFFFFF' : THEME.textPrimary)),
+          weight: 600
+        }
       }];
       const salaryLayout = {
         ...defaultLayout,
@@ -1297,17 +1418,23 @@ class AttritionApp {
       const levels = data.job_level_breakdown.map(d => `Level ${d.JobLevel}`);
       const rates = data.job_level_breakdown.map(d => d.AttritionRate);
       const maxLvlRate = Math.max(...rates);
+      const isLight = (THEME.bgCard === '#FFFFFF');
       const lvlData = [{
         x: levels,
         y: rates,
         type: 'bar',
         marker: {
-          color: rates.map(r => r === maxLvlRate ? THEME.copper : THEME.bgElevated),
-          line: { color: rates.map(r => r === maxLvlRate ? THEME.copper : THEME.borderCard), width: 1 }
+          color: rates.map(r => r === maxLvlRate ? THEME.copper : (THEME.barDefault || '#64748B')),
+          line: { color: rates.map(r => r === maxLvlRate ? THEME.copper : (THEME.barDefaultLine || '#475569')), width: 1 }
         },
         text: rates.map(r => `${r}%`),
         textposition: 'auto',
-        textfont: { family: THEME.fontFamily, size: 11, color: THEME.textPrimary }
+        textfont: {
+          family: THEME.fontFamily,
+          size: 11,
+          color: rates.map(r => r === maxLvlRate ? '#FFFFFF' : (isLight ? '#FFFFFF' : THEME.textPrimary)),
+          weight: 600
+        }
       }];
       const lvlLayout = {
         ...defaultLayout,
