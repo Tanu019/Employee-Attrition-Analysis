@@ -5,20 +5,20 @@
  */
 
 const DARK_THEME = {
-  copper: '#C47C5A',
-  copperHover: '#D48A66',
-  copperSoft: 'rgba(196, 124, 90, 0.45)',
-  emerald: '#8FA58B', // muted sage green
-  amber: '#D49B5B',
-  crimson: '#C85A5A',
-  sapphire: '#7C8BA1',
-  bgCard: '#24201C',
-  bgElevated: '#2D2722',
-  bgSidebar: '#191613',
-  borderCard: '#403831',
-  textPrimary: '#F4EFE8',
-  textSecondary: '#ADA298',
-  textMuted: '#857A70',
+  copper: '#B8F34A', // Electric Lime primary accent
+  copperHover: '#CAFF72', // Lime hover
+  copperSoft: 'rgba(184, 243, 74, 0.25)',
+  emerald: '#8DD3A8', // Positive / Low risk
+  amber: '#F0C66B', // Warning / Medium risk
+  crimson: '#FF7777', // High risk
+  sapphire: '#83BFFF', // Informational
+  bgCard: '#202428', // Primary card surface
+  bgElevated: '#272D32', // Elevated surface
+  bgSidebar: '#15181B', // Sidebar background
+  borderCard: '#343B40', // Borders & dividers
+  textPrimary: '#F2F4F3', // Main text
+  textSecondary: '#A5ADB3', // Secondary text
+  textMuted: '#7F8B91', // Muted labels
   fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif"
 };
 
@@ -105,10 +105,13 @@ class AttritionApp {
   async init() {
     console.log("Initializing People Intelligence Decision Platform...");
     this.initTheme();
+    this.initLiveDateBadge();
+    this.initDynamicGreeting();
     this.setupNavigation();
     this.setupTabs();
     this.setupAccordions();
     this.initHeroCanvas();
+    this.setupGlobalKeyboard();
     if (window.lucide) {
       window.lucide.createIcons();
     }
@@ -131,6 +134,44 @@ class AttritionApp {
       console.error("Initialization error:", err);
     }
   }
+
+  // Live executive date badge — updates every minute
+  initLiveDateBadge() {
+    const el = document.getElementById('header-live-date');
+    if (!el) return;
+    const update = () => {
+      const now = new Date();
+      const dayName = now.toLocaleDateString('en-US', { weekday: 'short' });
+      const month   = now.toLocaleDateString('en-US', { month: 'short' });
+      const day     = now.getDate();
+      el.textContent = `${dayName}, ${month} ${day}  ·  Demo Environment`;
+    };
+    update();
+    setInterval(update, 60000);
+  }
+
+  // Dynamic time-based greeting
+  initDynamicGreeting() {
+    const el = document.getElementById('overview-greeting-text');
+    if (!el) return;
+    const h = new Date().getHours();
+    let period = 'morning';
+    if (h >= 12 && h < 17) period = 'afternoon';
+    else if (h >= 17) period = 'evening';
+    el.innerHTML = `Good ${period}, <em class="copper-accent">People Operations.</em>`;
+  }
+
+  // Global keyboard shortcut: Ctrl+K → command bar
+  setupGlobalKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        this.openCommandBar();
+      }
+    });
+  }
+
+
 
   initTheme() {
     let savedTheme = 'dark';
@@ -2156,6 +2197,117 @@ class AttritionApp {
         if (!prefersReducedMotion) draw();
       }
     });
+  }
+
+  // ── Command Bar ────────────────────────────────────────────────────────────
+  _cmdItems = [
+    { label: 'Overview',            icon: 'compass',       target: 'mod-overview',   tag: 'View' },
+    { label: 'Attrition Analysis',  icon: 'bar-chart-2',   target: 'mod-attrition',  tag: 'View' },
+    { label: 'Prediction & Model',  icon: 'cpu',           target: 'mod-predictor',  tag: 'View' },
+    { label: 'Retention Strategy',  icon: 'target',        target: 'mod-retention',  tag: 'View' },
+    { label: 'Data & Reports',      icon: 'folder-kanban', target: 'mod-upload',     tag: 'View' },
+    { label: 'Privacy & Governance', icon: 'shield-check', action: () => this.showPrivacyModal(), tag: 'Modal' },
+    { label: 'Workforce Retention Rate', icon: 'percent', target: 'mod-overview',   tag: 'Metric' },
+    { label: 'Attrition Rate 18%',  icon: 'activity',      target: 'mod-overview',   tag: 'Metric' },
+    { label: 'ROC-AUC 0.745',       icon: 'award',         target: 'mod-predictor',  tag: 'Metric' },
+    { label: 'Department Heatmap',  icon: 'building-2',    target: 'mod-attrition',  tag: 'Chart' },
+    { label: 'Delivery Operations – Highest Attrition', icon: 'alert-triangle', target: 'mod-attrition', tag: 'Insight' },
+    { label: 'Simulate Flight Risk', icon: 'user-check',   target: 'mod-predictor',  tab: 'tab-predict-attrition', tag: 'Action' },
+    { label: 'Download Report',     icon: 'download',      target: 'mod-upload',     tag: 'Action' },
+  ];
+
+  openCommandBar() {
+    const overlay = document.getElementById('cmd-overlay');
+    const input   = document.getElementById('cmd-input');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    this._cmdActiveIndex = -1;
+    this.handleCmdSearch('');
+    setTimeout(() => input && input.focus(), 50);
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  closeCommandBar() {
+    const overlay = document.getElementById('cmd-overlay');
+    if (overlay) overlay.style.display = 'none';
+    const input = document.getElementById('cmd-input');
+    if (input) input.value = '';
+  }
+
+  handleCmdSearch(query) {
+    const q = query.trim().toLowerCase();
+    const results = q
+      ? this._cmdItems.filter(i => i.label.toLowerCase().includes(q))
+      : this._cmdItems;
+    const container = document.getElementById('cmd-results');
+    if (!container) return;
+    this._cmdActiveIndex = -1;
+    if (results.length === 0) {
+      container.innerHTML = '<div style="padding:16px 18px;font-size:0.84rem;color:var(--text-muted);">No results found.</div>';
+      return;
+    }
+    container.innerHTML = results.map((item, i) =>
+      `<div class="cmd-result-item" data-idx="${i}" data-label="${item.label}" onclick="app._execCmdItem(${this._cmdItems.indexOf(item)})">
+        <i data-lucide="${item.icon}" style="width:15px;height:15px;flex-shrink:0;"></i>
+        <span class="cmd-result-label">${item.label}</span>
+        <span class="cmd-result-tag">${item.tag}</span>
+      </div>`
+    ).join('');
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  handleCmdKey(e) {
+    const items = document.querySelectorAll('#cmd-results .cmd-result-item');
+    if (e.key === 'Escape') { this.closeCommandBar(); return; }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      this._cmdActiveIndex = Math.min(this._cmdActiveIndex + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      this._cmdActiveIndex = Math.max(this._cmdActiveIndex - 1, 0);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const active = document.querySelector('#cmd-results .cmd-result-item.active');
+      if (active) active.click();
+      else if (items.length > 0) items[0].click();
+      return;
+    }
+    items.forEach((el, i) => el.classList.toggle('active', i === this._cmdActiveIndex));
+    if (this._cmdActiveIndex >= 0) items[this._cmdActiveIndex].scrollIntoView({ block: 'nearest' });
+  }
+
+  _execCmdItem(globalIdx) {
+    const item = this._cmdItems[globalIdx];
+    if (!item) return;
+    this.closeCommandBar();
+    if (item.action) { item.action(); return; }
+    if (item.target) {
+      this.switchView(item.target);
+      if (item.tab) {
+        setTimeout(() => {
+          const tabBtn = document.querySelector(`[data-tab="${item.tab}"]`);
+          if (tabBtn) tabBtn.click();
+        }, 100);
+      }
+    }
+  }
+
+  // ── Chart Export ───────────────────────────────────────────────────────────
+  exportChart(chartDivId, filename = 'chart') {
+    const el = document.getElementById(chartDivId);
+    if (!el || !window.Plotly) {
+      this.showToast('Chart not available for export.', 'warn');
+      return;
+    }
+    Plotly.toImage(el, { format: 'png', width: 1200, height: 480, scale: 2 })
+      .then(url => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.png`;
+        a.click();
+        this.showToast(`Chart exported as ${filename}.png`, 'success');
+      })
+      .catch(() => this.showToast('Export failed — chart may still be loading.', 'warn'));
   }
 }
 

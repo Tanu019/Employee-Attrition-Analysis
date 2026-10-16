@@ -5,9 +5,10 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.4+-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-32%20Passed%20(100%25)-8FA58B?logo=pytest&logoColor=white)](tests/)
-[![Architecture](https://img.shields.io/badge/Architecture-FastAPI%20%2B%20Vanilla%20SPA-C47C5A)](static/)
-[![Governance](https://img.shields.io/badge/Governance-GDPR%20%7C%20DPDP%202023%20Compliant-blue)](static/index.html)
+[![Tests](https://img.shields.io/badge/Tests-32%20Passed%20(100%25)-8DD3A8?logo=pytest&logoColor=111315)](tests/)
+[![Theme](https://img.shields.io/badge/Theme-Midnight%20Graphite%20%26%20Electric%20Lime-B8F34A?logoColor=111315)](static/css/style.css)
+[![Architecture](https://img.shields.io/badge/Architecture-FastAPI%20%2B%20Vanilla%20SPA-83BFFF)](static/)
+[![Governance](https://img.shields.io/badge/Governance-GDPR%20%7C%20DPDP%202023%20Compliant-F0C66B)](static/index.html)
 
 **Product:** Attrition Lens  
 **Enterprise Benchmark:** SnackRush Enterprise Solutions (Fictional Quick-Commerce & Food Logistics Network)  

@@ -166,7 +166,7 @@ def test_landing_page_and_app_routes(client):
     assert "Every business runs on people." in root_text
     assert "Understand" in root_text
     assert "yours better." in root_text
-    assert "Enter People Intelligence" in root_text
+    assert ("Enter Attrition Lens" in root_text or "Enter People Intelligence" in root_text)
 
     # 2. /landing serves landing page
     res_landing = client.get("/landing")

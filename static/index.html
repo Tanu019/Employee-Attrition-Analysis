@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attrition Lens | SnackRush Enterprise Solutions</title>
   <meta name="description" content="Attrition Lens: Workforce Intelligence & Retention Platform for SnackRush Enterprise Solutions. Analyze employee workforce patterns, explore attrition trends, and evaluate data-driven retention decisions.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23191613'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23C47C5A' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='%23C47C5A'/%3E%3Cline x1='22' y1='22' x2='27' y2='27' stroke='%23C47C5A' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/css/style.css">
   <script>
     (function() {
@@ -119,18 +120,50 @@
     <header class="app-header">
       <div class="header-left">
         <span class="page-title" id="top-header-title">Attrition Lens</span>
+        <span class="header-date-badge" id="header-live-date">Loading...</span>
+      </div>
+      <div class="header-center">
+        <button class="cmd-bar-trigger" id="cmd-bar-btn" onclick="app.openCommandBar()" title="Quick search (Ctrl+K)" aria-label="Open command bar">
+          <i data-lucide="search" style="width:13px;height:13px;opacity:0.6;"></i>
+          <span class="cmd-bar-placeholder">Quick search...</span>
+          <kbd class="cmd-kbd">Ctrl K</kbd>
+        </button>
       </div>
       <div class="header-right">
-        <button class="btn-header-action" onclick="app.showPrivacyModal()" title="View Ethical AI, Privacy & Data Governance Standard">
-          <i data-lucide="shield-check" style="width:14px;height:14px;"></i> Privacy & Governance
+        <button class="btn-header-action" onclick="app.showPrivacyModal()" title="View Ethical AI, Privacy &amp; Data Governance Standard">
+          <i data-lucide="shield-check" style="width:14px;height:14px;"></i> Privacy &amp; Governance
         </button>
         <button class="btn-header-action" onclick="app.navigateTo('mod-upload')" title="Upload dataset, inspect schema, and export reports">
-          <i data-lucide="folder-kanban" style="width:14px;height:14px;"></i> Data & Reports
+          <i data-lucide="folder-kanban" style="width:14px;height:14px;"></i> Data &amp; Reports
         </button>
         <a href="/" class="btn-header-action" title="Return to SnackRush Enterprise Introduction" style="text-decoration:none;">
           <i data-lucide="home" style="width:14px;height:14px;"></i> Company Intro
         </a>
+        <div class="exec-profile-badge" title="People Analytics · SnackRush Enterprise">
+          <div class="exec-avatar" aria-hidden="true">PA</div>
+          <div class="exec-info">
+            <span class="exec-role">People Analytics</span>
+            <span class="exec-org">SnackRush Enterprise</span>
+          </div>
+        </div>
       </div>
+    </header>
+    <!-- Command Bar Overlay -->
+    <div class="cmd-overlay" id="cmd-overlay" role="dialog" aria-modal="true" aria-label="Command search" style="display:none;">
+      <div class="cmd-modal">
+        <div class="cmd-input-row">
+          <i data-lucide="search" style="width:16px;height:16px;opacity:0.5;"></i>
+          <input type="text" id="cmd-input" class="cmd-input" placeholder="Search views, metrics, departments..." autocomplete="off" oninput="app.handleCmdSearch(this.value)" onkeydown="app.handleCmdKey(event)">
+          <button class="cmd-close-btn" onclick="app.closeCommandBar()" title="Close (Esc)"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
+        </div>
+        <div class="cmd-results" id="cmd-results"></div>
+        <div class="cmd-footer">
+          <span><kbd>&#8593;&#8595;</kbd> navigate</span>
+          <span><kbd>Enter</kbd> open</span>
+          <span><kbd>Esc</kbd> close</span>
+        </div>
+      </div>
+    </div>
     </header>
 
     <!-- Page Body Container -->
@@ -144,7 +177,7 @@
         <!-- 1. Overview Page Header & Company Introduction -->
         <div class="overview-header-group">
           <div class="overview-greeting-row">
-            <h1 class="overview-greeting">Good morning, <em class="copper-accent">People Operations.</em></h1>
+            <h1 class="overview-greeting" id="overview-greeting-text">Good morning, <em class="copper-accent">People Operations.</em></h1>
             <span class="overview-case-badge">Fictional company · Workforce analytics case study</span>
           </div>
           <div class="overview-intro-box">
@@ -156,6 +189,28 @@
             <p class="intro-desc">
               Explore workforce patterns across SnackRush through interactive attrition analytics, predictive modeling, and evidence-based retention insights.
             </p>
+          </div>
+        </div>
+
+        <!-- Hero Retention Highlight Card -->
+        <div class="hero-retention-card">
+          <div class="hero-retention-main">
+            <div class="hero-retention-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
+                <path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z"/>
+                <polyline points="9 12 11 14 15 10"/>
+              </svg>
+            </div>
+            <div>
+              <div class="hero-retention-value" id="hero-retention-pct">82.0%</div>
+              <div class="hero-retention-label">Workforce Retention Rate</div>
+            </div>
+          </div>
+          <div class="hero-retention-bar-wrap">
+            <div class="hero-retention-bar-track">
+              <div class="hero-retention-bar-fill" id="hero-retention-bar" style="width:82%"></div>
+            </div>
+            <div class="hero-retention-bench">Industry peer benchmark: ~80 – 85% · SnackRush is within healthy range</div>
           </div>
         </div>
 
@@ -213,7 +268,12 @@
                 <h3 class="overview-chart-title">Workforce Distribution</h3>
                 <p class="overview-chart-desc">Active Stayers vs. Historical Departures in monitored dataset</p>
               </div>
-              <span class="badge badge-low" id="overview-retention-rate">82.0% Retained</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="badge badge-low" id="overview-retention-rate">82.0% Retained</span>
+                <button class="chart-export-btn" onclick="app.exportChart('chart-overall-dist', 'workforce_distribution')" title="Export chart as PNG">
+                  <i data-lucide="download" style="width:12px;height:12px;"></i>
+                </button>
+              </div>
             </div>
             <div class="distribution-chart-body">
               <div id="chart-overall-dist" class="chart-container" style="height:230px;"></div>
@@ -237,6 +297,9 @@
                 <h3 class="overview-chart-title">Department Attrition Comparison</h3>
                 <p class="overview-chart-desc">Observed historical turnover rate (%) across operating business units</p>
               </div>
+              <button class="chart-export-btn" onclick="app.exportChart('chart-dept-attrition', 'dept_attrition_comparison')" title="Export chart as PNG">
+                <i data-lucide="download" style="width:12px;height:12px;"></i>
+              </button>
             </div>
             <div class="chart-body-wrap">
               <div id="chart-dept-attrition" class="chart-container" style="height:250px;"></div>
@@ -667,12 +730,12 @@
                 <thead>
                   <tr>
                     <th>Model Algorithm</th>
-                    <th>Accuracy</th>
-                    <th>Precision</th>
-                    <th>Recall</th>
-                    <th>F1-Score</th>
-                    <th>ROC-AUC</th>
-                    <th>PR-AUC</th>
+                    <th title="Overall correct predictions. Misleading on imbalanced data — a model predicting 'No Attrition' 100% of the time scores 82% here.">Accuracy <span class="ml-tooltip-icon" aria-label="Metric info">?</span></th>
+                    <th title="Of all employees flagged as likely to leave, what fraction actually left? High precision = fewer false alarms. Low precision = wasted HR interventions.">Precision <span class="ml-tooltip-icon" aria-label="Metric info">?</span></th>
+                    <th title="Of all employees who actually left, how many did the model catch? High recall = fewer missed exits. Low recall = costly unexpected departures.">Recall <span class="ml-tooltip-icon" aria-label="Metric info">?</span></th>
+                    <th title="Harmonic mean of Precision and Recall. Best single metric for imbalanced HR datasets where both missing exits and false alarms matter.">F1-Score <span class="ml-tooltip-icon" aria-label="Metric info">?</span></th>
+                    <th title="Area Under ROC Curve. Measures how well the model distinguishes leavers from stayers across all decision thresholds. 1.0 = perfect, 0.5 = random guess.">ROC-AUC <span class="ml-tooltip-icon" aria-label="Metric info">?</span></th>
+                    <th title="Area Under Precision-Recall Curve. More informative than ROC-AUC when the positive class (leavers, 18%) is rare — avoids inflated scores from the large stayer majority.">PR-AUC <span class="ml-tooltip-icon" aria-label="Metric info">?</span></th>
                     <th>Selection Verdict</th>
                   </tr>
                 </thead>
@@ -822,17 +885,20 @@
                 <h3 class="chart-title">Individual Flight Risk Simulator</h3>
                 <p class="chart-desc">Select operational inputs or load ready-to-test demonstration profiles:</p>
               </div>
-              <!-- Preset Quick-Fill Chips -->
-              <div class="preset-chips-container" style="margin-bottom:0;">
-                <span style="font-size:0.78rem; color:var(--text-muted);">Quick-Fill Presets:</span>
-                <button type="button" class="preset-chip" onclick="app.loadPreset('high_risk')">
-                  ⚡ High-Risk Flight Sample
+              <!-- 1-Click Simulation Persona Chips -->
+              <div class="persona-chips-container" style="margin-bottom:0;">
+                <span class="persona-chips-label">Simulation personas:</span>
+                <button type="button" class="persona-chip risk" onclick="app.loadPreset('high_risk')" title="Sales Executive · ₹32K salary · High overtime · Low satisfaction · 1.5yr tenure">
+                  <span class="persona-chip-dot"></span>
+                  At-Risk Field Courier
                 </button>
-                <button type="button" class="preset-chip" onclick="app.loadPreset('low_risk')">
-                  🛡️ Low-Risk Loyal Sample
+                <button type="button" class="persona-chip stable" onclick="app.loadPreset('low_risk')" title="Software Engineer · ₹95K salary · No overtime · High satisfaction · 6yr tenure">
+                  <span class="persona-chip-dot"></span>
+                  Stable Senior Engineer
                 </button>
-                <button type="button" class="preset-chip" onclick="app.loadPreset('burnout')">
-                  🔥 Severe Burnout Sample
+                <button type="button" class="persona-chip stagnant" onclick="app.loadPreset('burnout')" title="Delivery Coordinator · ₹28K salary · Severe burnout score · High overtime · 2yr tenure">
+                  <span class="persona-chip-dot"></span>
+                  Stagnant Sales Executive
                 </button>
               </div>
             </div>
