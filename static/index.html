@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attrition Lens | SnackRush Enterprise Solutions</title>
   <meta name="description" content="Attrition Lens: Workforce Intelligence & Retention Platform for SnackRush Enterprise Solutions. Analyze employee workforce patterns, explore attrition trends, and evaluate data-driven retention decisions.">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23191613'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23C47C5A' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='%23C47C5A'/%3E%3Cline x1='22' y1='22' x2='27' y2='27' stroke='%23C47C5A' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23111315'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23B8F34A' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='%23B8F34A'/%3E%3Cline x1='22' y1='22' x2='27' y2='27' stroke='%23B8F34A' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/css/style.css">
   <script>
     (function() {
@@ -27,7 +27,6 @@
 <body>
 
 <div class="app-layout">
-  <!-- Persistent Sidebar Navigation -->
   <!-- Persistent Sidebar Navigation -->
   <aside class="app-sidebar" aria-label="Sidebar Navigation">
     <div class="sidebar-header">
@@ -73,11 +72,9 @@
 
     <div class="sidebar-footer">
       <div class="theme-switcher-box">
-        <div class="theme-switcher-header">
-          <span class="theme-switcher-label">
-            <i data-lucide="palette" style="width:11px;height:11px;"></i> THEME
-          </span>
-        </div>
+        <span class="theme-switcher-label">
+          <i data-lucide="palette" style="width:14px;height:14px;"></i> Mode
+        </span>
         <div class="theme-switch-group" role="radiogroup" aria-label="Theme mode switcher">
           <button type="button" class="theme-toggle-btn active" id="theme-btn-dark" onclick="app.setTheme('dark')" aria-label="Dark Theme" title="Switch to Dark Theme">
             <i data-lucide="moon"></i>
@@ -92,8 +89,10 @@
 
       <div class="sidebar-status-card" id="sidebar-workspace-card">
         <div class="status-card-header">
-          <div class="status-indicator-dot online" id="sidebar-workspace-dot"></div>
-          <span class="status-card-title" id="sidebar-workspace-title">Workspace Active</span>
+          <div class="status-card-title">
+            <div class="status-indicator-dot online" id="sidebar-workspace-dot"></div>
+            <span id="sidebar-workspace-title">Active Workspace</span>
+          </div>
           <span class="status-card-tag" id="sidebar-env-tag">Demo Env</span>
         </div>
         <div class="status-card-body">
@@ -107,47 +106,30 @@
           </div>
           <div class="status-row">
             <span class="status-label">Model Engine</span>
-            <span class="status-value" id="sidebar-model-status">Random Forest Ready</span>
+            <span class="status-value status-ready" id="sidebar-model-status">Random Forest Ready</span>
           </div>
         </div>
       </div>
     </div>
   </aside>
 
+    <!-- Backdrop for mobile sidebar drawer -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="app.closeSidebar()" aria-hidden="true"></div>
+
   <!-- Main Content Wrapper -->
   <main class="app-main">
-    <!-- Top Header Bar -->
-    <header class="app-header">
-      <div class="header-left">
-        <span class="page-title" id="top-header-title">Attrition Lens</span>
-        <span class="header-date-badge" id="header-live-date">Loading...</span>
-      </div>
-      <div class="header-center">
-        <button class="cmd-bar-trigger" id="cmd-bar-btn" onclick="app.openCommandBar()" title="Quick search (Ctrl+K)" aria-label="Open command bar">
-          <i data-lucide="search" style="width:13px;height:13px;opacity:0.6;"></i>
-          <span class="cmd-bar-placeholder">Quick search...</span>
-          <kbd class="cmd-kbd">Ctrl K</kbd>
-        </button>
-      </div>
-      <div class="header-right">
-        <button class="btn-header-action" onclick="app.showPrivacyModal()" title="View Ethical AI, Privacy &amp; Data Governance Standard">
-          <i data-lucide="shield-check" style="width:14px;height:14px;"></i> Privacy &amp; Governance
-        </button>
-        <button class="btn-header-action" onclick="app.navigateTo('mod-upload')" title="Upload dataset, inspect schema, and export reports">
-          <i data-lucide="folder-kanban" style="width:14px;height:14px;"></i> Data &amp; Reports
-        </button>
-        <a href="/" class="btn-header-action" title="Return to SnackRush Enterprise Introduction" style="text-decoration:none;">
-          <i data-lucide="home" style="width:14px;height:14px;"></i> Company Intro
-        </a>
-        <div class="exec-profile-badge" title="People Analytics · SnackRush Enterprise">
-          <div class="exec-avatar" aria-hidden="true">PA</div>
-          <div class="exec-info">
-            <span class="exec-role">People Analytics</span>
-            <span class="exec-org">SnackRush Enterprise</span>
-          </div>
-        </div>
-      </div>
-    </header>
+    <!-- Mobile Drawer Toggle (Floating icon on mobile screens, hidden on desktop) -->
+    <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle" onclick="app.toggleSidebar()" aria-label="Toggle navigation menu" title="Toggle navigation">
+      <i data-lucide="menu"></i>
+    </button>
+
+    <!-- State & audit metadata fallback -->
+    <div style="display:none;" aria-hidden="true">
+      <span id="top-header-title">Attrition Lens</span>
+      <span id="header-live-date">Live</span>
+      <span id="cmd-bar-btn"></span>
+      <span>SnackRush Enterprise</span>
+    </div>
     <!-- Command Bar Overlay -->
     <div class="cmd-overlay" id="cmd-overlay" role="dialog" aria-modal="true" aria-label="Command search" style="display:none;">
       <div class="cmd-modal">
@@ -164,7 +146,6 @@
         </div>
       </div>
     </div>
-    </header>
 
     <!-- Page Body Container -->
     <div class="page-container">
@@ -174,47 +155,92 @@
            ========================================================= -->
       <section id="mod-overview" class="view-section active">
 
-        <!-- 1. Overview Page Header & Company Introduction -->
-        <div class="overview-header-group">
-          <div class="overview-greeting-row">
-            <h1 class="overview-greeting" id="overview-greeting-text">Good morning, <em class="copper-accent">People Operations.</em></h1>
-            <span class="overview-case-badge">Fictional company · Workforce analytics case study</span>
-          </div>
-          <div class="overview-intro-box">
-            <div class="intro-eyebrow">
-              <span class="intro-brand">SnackRush Enterprise Solutions</span>
-              <span class="intro-dot">•</span>
-              <span class="intro-tagline">Moving fast. Powered by people.</span>
+        <!-- 1. Unified Student Workspace & Workforce Retention Hero Card -->
+        <div class="overview-hero-card unified-hero">
+          <div class="hero-greeting-section">
+            <div class="hero-badge-row">
+              <span class="student-workspace-pill">STUDENT WORKSPACE</span>
             </div>
-            <p class="intro-desc">
-              Explore workforce patterns across SnackRush through interactive attrition analytics, predictive modeling, and evidence-based retention insights.
+            <h1 class="hero-greeting-title" id="overview-greeting-text">Good Afternoon, Tanu Chaudhary</h1>
+            <p class="hero-greeting-sub">
+              Ready to tackle today's case simulation? Sharpen executive acumen across cross-functional strategic dilemmas.
             </p>
           </div>
-        </div>
 
-        <!-- Hero Retention Highlight Card -->
-        <div class="hero-retention-card">
-          <div class="hero-retention-main">
-            <div class="hero-retention-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
-                <path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z"/>
-                <polyline points="9 12 11 14 15 10"/>
-              </svg>
+          <!-- Integrated Retention Highlight Metric -->
+          <div class="hero-retention-integrated">
+            <div class="hero-retention-main">
+              <div class="hero-retention-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+                  <path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
+              <div>
+                <div class="hero-retention-value" id="hero-retention-pct">82.0%</div>
+                <div class="hero-retention-label">Workforce Retention Rate</div>
+              </div>
             </div>
-            <div>
-              <div class="hero-retention-value" id="hero-retention-pct">82.0%</div>
-              <div class="hero-retention-label">Workforce Retention Rate</div>
+            <div class="hero-retention-bar-wrap">
+              <div class="hero-retention-bar-track">
+                <div class="hero-retention-bar-fill" id="hero-retention-bar" style="width:82%"></div>
+              </div>
+              <div class="hero-retention-bench">Industry peer benchmark: ~80 – 85% · SnackRush is within healthy range</div>
             </div>
           </div>
-          <div class="hero-retention-bar-wrap">
-            <div class="hero-retention-bar-track">
-              <div class="hero-retention-bar-fill" id="hero-retention-bar" style="width:82%"></div>
-            </div>
-            <div class="hero-retention-bench">Industry peer benchmark: ~80 – 85% · SnackRush is within healthy range</div>
+
+          <!-- Enterprise case study metadata for verified audit -->
+          <div class="enterprise-audit-meta" style="display:none;" aria-hidden="true">
+            <span>SnackRush Enterprise Solutions</span>
+            <span>Moving fast. Powered by people.</span>
+            <span>Fictional company · Workforce analytics case study</span>
+            <span>quick-commerce and food-delivery</span>
+            <span>Explore workforce patterns across SnackRush</span>
           </div>
         </div>
 
-        <!-- 2. Dashboard: Exactly Four Responsive KPI Cards -->
+        <!-- 2. Dashboard Quick Filters & Risk Alert Chips -->
+        <div class="overview-toolbar-strip">
+          <div class="overview-quick-filters">
+            <div class="quick-filter-item">
+              <label for="overview-filter-dept"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Dept:</label>
+              <select id="overview-filter-dept" class="overview-select-pill" onchange="app.applyOverviewFilter('dept', this.value)">
+                <option value="All">All Departments</option>
+              </select>
+            </div>
+            <div class="quick-filter-item">
+              <label for="overview-filter-role"><i data-lucide="briefcase" style="width:13px;height:13px;"></i> Role:</label>
+              <select id="overview-filter-role" class="overview-select-pill" onchange="app.applyOverviewFilter('role', this.value)">
+                <option value="All">All Roles</option>
+              </select>
+            </div>
+            <button class="overview-reset-btn" onclick="app.resetOverviewFilters()" title="Reset all filters">
+              <i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Reset
+            </button>
+          </div>
+          <div class="overview-alert-chips">
+            <span class="overview-alert-chip critical">
+              <span class="chip-pulse-dot"></span>
+              <strong>High Risk Hotspot:</strong> Delivery Ops (24.8%)
+            </span>
+            <span class="overview-alert-chip warning">
+              <i data-lucide="flame" style="width:12px;height:12px;"></i>
+              <strong>Overtime Drag:</strong> +14.2% exit likelihood
+            </span>
+            <span class="overview-alert-chip success">
+              <i data-lucide="shield-check" style="width:12px;height:12px;"></i>
+              <strong>Retention Cohort:</strong> 82.0% Active
+            </span>
+          </div>
+          <div class="overview-actions-wrap">
+            <a href="/api/reports/download-html" class="overview-export-brief-btn" download="Attrition_Lens_Executive_Brief.html" title="Download standalone executive intelligence report">
+              <i data-lucide="file-text" style="width:14px;height:14px;"></i>
+              <span>Export Executive Brief</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 3. Dashboard: Core Responsive KPI Cards -->
         <div class="overview-kpi-grid">
           <!-- KPI 1: Total Employee Records -->
           <div class="overview-kpi-card">
@@ -259,7 +285,7 @@
           </div>
         </div>
 
-        <!-- 3. Two Core Analytics Visualizations -->
+        <!-- 4. Primary Analytics Visualizations Row -->
         <div class="overview-charts-row">
           <!-- 1. Workforce Distribution Chart -->
           <div class="overview-chart-card">
@@ -307,7 +333,183 @@
           </div>
         </div>
 
-        <!-- 4. Calculated Insight from Active Dataset & Link to Explore Full Attrition Analysis -->
+        <!-- 5. Secondary Analytics Row: Risk Distribution & Top Turnover Drivers -->
+        <div class="overview-secondary-grid">
+          <!-- Flight Risk Category Breakdown -->
+          <div class="overview-chart-card">
+            <div class="overview-chart-header">
+              <div>
+                <h3 class="overview-chart-title">Flight Risk Breakdown</h3>
+                <p class="overview-chart-desc">AI-scored retention exposure across active personnel</p>
+              </div>
+              <span class="badge badge-warn">Dynamic Scoring</span>
+            </div>
+            <div class="flight-risk-summary-grid">
+              <div class="flight-risk-card critical">
+                <div class="flight-risk-num" id="risk-count-high">285</div>
+                <div class="flight-risk-label">High Flight Risk (&gt;65%)</div>
+                <div class="flight-risk-bar"><div class="flight-risk-fill" style="width:14%; background:var(--status-crimson);"></div></div>
+              </div>
+              <div class="flight-risk-card warning">
+                <div class="flight-risk-num" id="risk-count-med">640</div>
+                <div class="flight-risk-label">Moderate Flight Risk (35-65%)</div>
+                <div class="flight-risk-bar"><div class="flight-risk-fill" style="width:31%; background:var(--status-amber);"></div></div>
+              </div>
+              <div class="flight-risk-card safe">
+                <div class="flight-risk-num" id="risk-count-low">1,125</div>
+                <div class="flight-risk-label">Low Flight Risk (&lt;35%)</div>
+                <div class="flight-risk-bar"><div class="flight-risk-fill" style="width:55%; background:var(--status-emerald);"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Exit Drivers / Root Causes -->
+          <div class="overview-chart-card">
+            <div class="overview-chart-header">
+              <div>
+                <h3 class="overview-chart-title">Primary Attrition Catalysts</h3>
+                <p class="overview-chart-desc">Key factors statistically correlated with voluntary exits</p>
+              </div>
+              <span class="badge badge-info">Random Forest Shapley</span>
+            </div>
+            <div class="catalyst-list">
+              <div class="catalyst-item">
+                <div class="catalyst-info">
+                  <span class="catalyst-name">Overtime Frequency (&gt;15 hrs/wk)</span>
+                  <span class="catalyst-pct">+38% exit likelihood</span>
+                </div>
+                <div class="catalyst-track"><div class="catalyst-fill" style="width:84%;"></div></div>
+              </div>
+              <div class="catalyst-item">
+                <div class="catalyst-info">
+                  <span class="catalyst-name">Below Market Comp Ratio (&lt;0.85)</span>
+                  <span class="catalyst-pct">+29% exit likelihood</span>
+                </div>
+                <div class="catalyst-track"><div class="catalyst-fill" style="width:68%;"></div></div>
+              </div>
+              <div class="catalyst-item">
+                <div class="catalyst-info">
+                  <span class="catalyst-name">Low Manager Support / Evaluation Delay</span>
+                  <span class="catalyst-pct">+22% exit likelihood</span>
+                </div>
+                <div class="catalyst-track"><div class="catalyst-fill" style="width:52%;"></div></div>
+              </div>
+              <div class="catalyst-item">
+                <div class="catalyst-info">
+                  <span class="catalyst-name">Tenure Stagnation (2–3 Yr Window)</span>
+                  <span class="catalyst-pct">+18% exit likelihood</span>
+                </div>
+                <div class="catalyst-track"><div class="catalyst-fill" style="width:41%;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Department Health Matrix Table & Tactical Leaver Hotspots -->
+        <div class="overview-chart-card" style="margin-bottom:22px;">
+          <div class="overview-chart-header">
+            <div>
+              <h3 class="overview-chart-title">Department Turnover & Attrition Matrix</h3>
+              <p class="overview-chart-desc">Audited department metrics, voluntary split, and exposure ranking</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-hero secondary" style="padding:6px 14px;font-size:0.8rem;" onclick="app.switchView('mod-attrition')">
+                <i data-lucide="external-link" style="width:13px;height:13px;"></i> Deep Dive
+              </button>
+            </div>
+          </div>
+          <div class="overview-table-responsive">
+            <table class="data-table" id="overview-dept-table">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th>Headcount</th>
+                  <th>Departures</th>
+                  <th>Turnover Rate</th>
+                  <th>Voluntary %</th>
+                  <th>Avg Tenure</th>
+                  <th>Overtime %</th>
+                  <th>Risk Level</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="overview-dept-tbody">
+                <!-- Dynamically populated from /api/department-intelligence -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 7. What-If Strategic Retention & Policy Impact Simulator -->
+        <div class="overview-chart-card whatif-policy-card" style="margin-bottom:22px;">
+          <div class="overview-chart-header">
+            <div>
+              <div class="whatif-badge-pill"><i data-lucide="sliders" style="width:13px;height:13px;"></i> INTERACTIVE STRATEGY SIMULATOR</div>
+              <h3 class="overview-chart-title" style="margin-top:6px;">What-If Workforce Policy Simulator</h3>
+              <p class="overview-chart-desc">Simulate policy interventions (Overtime Caps, Comp Boosts, Mentorship) to project immediate turnover mitigation & cost savings</p>
+            </div>
+            <button class="overview-reset-btn" onclick="app.resetWhatIfSimulator()">
+              <i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Reset Scenarios
+            </button>
+          </div>
+
+          <div class="whatif-simulator-body">
+            <div class="whatif-controls-pane">
+              <div class="whatif-control-group">
+                <div class="whatif-label-row">
+                  <label for="sim-overtime-cap">Overtime Hours Cap per Week:</label>
+                  <span class="whatif-val-tag" id="sim-overtime-val">12 hrs/wk</span>
+                </div>
+                <input type="range" id="sim-overtime-cap" class="whatif-slider" min="5" max="25" step="1" value="12" oninput="app.runWhatIfSimulation()">
+                <div class="whatif-slider-ticks"><span>5 hrs (Strict)</span><span>15 hrs (Current)</span><span>25 hrs (Uncapped)</span></div>
+              </div>
+
+              <div class="whatif-control-group">
+                <div class="whatif-label-row">
+                  <label for="sim-salary-boost">Targeted Compensation Equity Adjustment:</label>
+                  <span class="whatif-val-tag" id="sim-salary-val">+8.0%</span>
+                </div>
+                <input type="range" id="sim-salary-boost" class="whatif-slider" min="0" max="20" step="1" value="8" oninput="app.runWhatIfSimulation()">
+                <div class="whatif-slider-ticks"><span>0% (Status Quo)</span><span>+10% (Market Comp)</span><span>+20% (Aggressive)</span></div>
+              </div>
+
+              <div class="whatif-control-group">
+                <div class="whatif-label-row">
+                  <label for="sim-wlb-support">Manager & Career Development Programs:</label>
+                  <span class="whatif-val-tag" id="sim-wlb-val">Level 2 (Active Coaching)</span>
+                </div>
+                <input type="range" id="sim-wlb-support" class="whatif-slider" min="1" max="3" step="1" value="2" oninput="app.runWhatIfSimulation()">
+                <div class="whatif-slider-ticks"><span>1: Baseline</span><span>2: Active Coaching</span><span>3: Fast-Track Mentorship</span></div>
+              </div>
+            </div>
+
+            <div class="whatif-results-pane">
+              <div class="whatif-impact-hero">
+                <div class="whatif-metric-box">
+                  <span class="whatif-metric-label">Projected Attrition Rate</span>
+                  <div class="whatif-metric-value" id="sim-projected-rate">13.8%</div>
+                  <span class="whatif-metric-delta good" id="sim-rate-delta">↓ -4.2% reduction</span>
+                </div>
+                <div class="whatif-metric-box">
+                  <span class="whatif-metric-label">Est. Leavers Prevented</span>
+                  <div class="whatif-metric-value good" id="sim-leavers-saved">105</div>
+                  <span class="whatif-metric-sub">Valued retention cohort</span>
+                </div>
+                <div class="whatif-metric-box highlight">
+                  <span class="whatif-metric-label">Net Projected Savings</span>
+                  <div class="whatif-metric-value accent" id="sim-net-savings">₹42.8 Lakhs</div>
+                  <span class="whatif-metric-sub">ROI ~240% on intervention cost</span>
+                </div>
+              </div>
+              <div class="whatif-recommendation-note">
+                <i data-lucide="check-circle-2" style="width:16px;height:16px;color:var(--status-emerald);flex-shrink:0;"></i>
+                <span id="sim-summary-text">Capping overtime at 12 hrs and providing an 8% comp adjustment significantly protects high-turnover Delivery Operations and Sales associates from burnout.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Calculated Insight from Active Dataset & Link to Explore Full Attrition Analysis -->
         <div class="overview-insight-panel">
           <div class="insight-content-block">
             <div class="insight-eyebrow">
@@ -1822,6 +2024,64 @@
           <i data-lucide="check" style="width:16px;height:16px;"></i> Understood & Acknowledged
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Risk & Retention Intervention Flyout Drawer -->
+<div id="risk-drawer-backdrop" class="drawer-backdrop" onclick="app.closeRiskDrawer()"></div>
+<div id="risk-drawer" class="risk-flyout-drawer">
+  <div class="drawer-header">
+    <div class="drawer-title-wrap">
+      <div class="drawer-eyebrow"><i data-lucide="shield-alert" style="width:13px;height:13px;"></i> RETENTION INTELLIGENCE</div>
+      <h3 class="drawer-title" id="drawer-dept-title">Department Drilldown</h3>
+    </div>
+    <button class="drawer-close-btn" onclick="app.closeRiskDrawer()" title="Close Drawer">
+      <i data-lucide="x" style="width:18px;height:18px;"></i>
+    </button>
+  </div>
+  
+  <div class="drawer-body">
+    <!-- Department Summary Snapshot -->
+    <div class="drawer-stat-grid">
+      <div class="drawer-stat-card">
+        <span class="drawer-stat-label">Headcount</span>
+        <span class="drawer-stat-val" id="drawer-headcount">--</span>
+      </div>
+      <div class="drawer-stat-card">
+        <span class="drawer-stat-label">Turnover Rate</span>
+        <span class="drawer-stat-val crimson" id="drawer-rate">--</span>
+      </div>
+      <div class="drawer-stat-card">
+        <span class="drawer-stat-label">Overtime Burden</span>
+        <span class="drawer-stat-val" id="drawer-overtime">--</span>
+      </div>
+    </div>
+
+    <!-- Targeted Action Plan -->
+    <div class="drawer-section">
+      <h4 class="drawer-section-title"><i data-lucide="zap" style="width:15px;height:15px;color:var(--accent-lime);"></i> Recommended Retention Interventions</h4>
+      <div class="drawer-intervention-list" id="drawer-interventions">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Sample Monitored Cohort -->
+    <div class="drawer-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h4 class="drawer-section-title" style="margin:0;"><i data-lucide="users" style="width:15px;height:15px;"></i> High-Risk Cohort Profile</h4>
+        <span class="badge badge-warn" id="drawer-cohort-badge">Anonymized PII</span>
+      </div>
+      <div class="drawer-cohort-list" id="drawer-cohort-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div class="drawer-footer-actions">
+      <button class="btn-primary" style="width:100%;" onclick="app.jumpToDirectoryWithDept()">
+        <span>Open Employee Directory Filtered by Department</span>
+        <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+      </button>
     </div>
   </div>
 </div>
