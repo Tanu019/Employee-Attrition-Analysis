@@ -8,6 +8,7 @@
 
 :root,
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg-canvas: #111315;
   --bg-sidebar: #15181B;
   --bg-surface: #202428;
@@ -65,6 +66,7 @@
    Accents: High-Contrast Emerald / Forest Lime #059669 / #10B981, Text #0F172A
    ========================================================================== */
 [data-theme="light"] {
+  color-scheme: light;
   --bg-canvas: #F8FAFC;
   --bg-sidebar: #F1F5F9;
   --bg-surface: #F8FAFC;
@@ -5307,6 +5309,19 @@ th[title] { cursor: help; }
   background: #FFFFFF;
   border-color: rgba(0, 0, 0, 0.15);
   color: #0F172A;
+}
+
+.suite-select option,
+select option {
+  background-color: #191D20 !important;
+  color: #F2F4F3 !important;
+  padding: 6px 10px;
+}
+
+[data-theme="light"] .suite-select option,
+[data-theme="light"] select option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
 }
 
 .suite-select:hover,
