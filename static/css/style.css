@@ -5137,6 +5137,202 @@ th[title] { cursor: help; }
 }
 
 /* ==========================================================================
+   ATTRITION ANALYSIS UNIFIED BANNER & COHORT FILTER SUITE
+   ========================================================================== */
+.section-banner.attrition-unified-banner {
+  padding: 18px 22px 14px;
+  margin-bottom: 20px;
+  position: relative;
+  background: linear-gradient(135deg, rgba(25, 29, 32, 0.96) 0%, rgba(18, 20, 22, 0.98) 100%);
+  border: 1px solid rgba(184, 243, 74, 0.22);
+  border-left: 4px solid var(--accent-lime);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .section-banner.attrition-unified-banner {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #16A34A;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+}
+
+.attrition-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent-lime);
+  background: rgba(184, 243, 74, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(184, 243, 74, 0.25);
+  margin-bottom: 8px;
+}
+
+[data-theme="light"] .attrition-banner-badge {
+  color: #15803D;
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.25);
+}
+
+.attrition-banner-text h2 {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+  letter-spacing: -0.01em;
+}
+
+.attrition-banner-text p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  max-width: 960px;
+  margin: 0;
+}
+
+/* Filter Suite Container */
+.attrition-filter-suite {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .attrition-filter-suite {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+.filter-suite-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.filter-suite-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.filter-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-size: 0.70rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-reset-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #EF4444;
+}
+
+[data-theme="light"] .filter-reset-btn {
+  background: #F1F5F9;
+  border-color: #E2E8F0;
+  color: #475569;
+}
+
+[data-theme="light"] .filter-reset-btn:hover {
+  background: #FEE2E2;
+  border-color: #F87171;
+  color: #DC2626;
+}
+
+/* Grid of 5 filters */
+.filter-suite-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 10px;
+}
+
+.suite-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.suite-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.70rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.suite-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.suite-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 6px 28px 6px 10px;
+  font-family: var(--font-body);
+  font-size: 0.81rem;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="light"] .suite-select {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #0F172A;
+}
+
+.suite-select:hover,
+.suite-select:focus {
+  background: rgba(184, 243, 74, 0.04);
+  border-color: var(--accent-lime);
+  box-shadow: 0 0 10px rgba(184, 243, 74, 0.15);
+}
+
+[data-theme="light"] .suite-select:hover,
+[data-theme="light"] .suite-select:focus {
+  background: #F8FAFC;
+  border-color: #16A34A;
+  box-shadow: 0 0 8px rgba(22, 163, 74, 0.15);
+}
+
+.suite-chevron {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
    BOARDROOM EXECUTIVE BRIEF - PRINT SPECIFICATION (@media print)
    ========================================================================== */
 @media print {
