@@ -261,52 +261,59 @@
         </div>
 
 
-        <!-- 3. Dashboard Quick Filters & Risk Alert Chips -->
-        <div class="overview-toolbar-strip">
-          <div class="overview-quick-filters">
-            <div class="quick-filter-item">
-              <label for="overview-filter-dept"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Dept:</label>
-              <select id="overview-filter-dept" class="overview-select-pill" onchange="app.applyOverviewFilter('dept', this.value)">
-                <option value="All">All Departments</option>
-              </select>
+        <!-- 3. Dashboard Quick Filters & Risk Alert Chips (Minimal 2-Row Layout) -->
+        <div class="overview-toolbar-strip minimal-2row">
+          <!-- Row 1: Quick Filters & Actions -->
+          <div class="toolbar-row row-primary">
+            <div class="overview-quick-filters">
+              <div class="quick-filter-item">
+                <i data-lucide="building-2" style="width:13px;height:13px;color:var(--text-muted);"></i>
+                <select id="overview-filter-dept" class="overview-select-pill" onchange="app.applyOverviewFilter('dept', this.value)" aria-label="Filter by department">
+                  <option value="All">All Departments</option>
+                </select>
+              </div>
+              <div class="quick-filter-item">
+                <i data-lucide="briefcase" style="width:13px;height:13px;color:var(--text-muted);"></i>
+                <select id="overview-filter-role" class="overview-select-pill" onchange="app.applyOverviewFilter('role', this.value)" aria-label="Filter by job role">
+                  <option value="All">All Roles</option>
+                </select>
+              </div>
+              <button type="button" class="overview-reset-btn" onclick="app.resetOverviewFilters()" title="Reset all filters">
+                <i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Reset
+              </button>
             </div>
-            <div class="quick-filter-item">
-              <label for="overview-filter-role"><i data-lucide="briefcase" style="width:13px;height:13px;"></i> Role:</label>
-              <select id="overview-filter-role" class="overview-select-pill" onchange="app.applyOverviewFilter('role', this.value)">
-                <option value="All">All Roles</option>
-              </select>
+            <div class="overview-actions-wrap">
+              <button type="button" class="overview-action-pill" onclick="app.printExecutiveReport()" title="Print boardroom brief as PDF">
+                <i data-lucide="printer" style="width:13px;height:13px;color:var(--accent-lime);"></i>
+                <span>Print PDF</span>
+              </button>
+              <button type="button" class="overview-action-pill" onclick="app.showPrivacyModal()" title="View DPDP Act 2023 & GDPR Ethical AI Protocol">
+                <i data-lucide="shield-check" style="width:13px;height:13px;color:var(--status-emerald);"></i>
+                <span>DPDP 2023</span>
+              </button>
+              <a href="/api/reports/download-html" class="overview-action-pill" download="Attrition_Lens_Executive_Brief.html" title="Download executive HTML brief">
+                <i data-lucide="file-text" style="width:13px;height:13px;"></i>
+                <span>Export HTML</span>
+              </a>
             </div>
-            <button class="overview-reset-btn" onclick="app.resetOverviewFilters()" title="Reset all filters">
-              <i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Reset
-            </button>
           </div>
-          <div class="overview-alert-chips">
-            <span class="overview-alert-chip critical">
-              <span class="chip-pulse-dot"></span>
-              <strong>High Risk Hotspot:</strong> Delivery Ops (24.8%)
-            </span>
-            <span class="overview-alert-chip warning">
-              <i data-lucide="flame" style="width:12px;height:12px;"></i>
-              <strong>Overtime Drag:</strong> +14.2% exit likelihood
-            </span>
-            <span class="overview-alert-chip success">
-              <i data-lucide="shield-check" style="width:12px;height:12px;"></i>
-              <strong>Retention Cohort:</strong> 82.0% Active
-            </span>
-          </div>
-          <div class="overview-actions-wrap">
-            <button type="button" class="overview-export-brief-btn" onclick="app.printExecutiveReport()" title="Print or save complete executive boardroom dossier as PDF">
-              <i data-lucide="printer" style="width:14px;height:14px;color:var(--accent-lime);"></i>
-              <span>Print Boardroom Brief (PDF)</span>
-            </button>
-            <button type="button" class="overview-export-brief-btn" onclick="app.showPrivacyModal()" title="View DPDP Act 2023 & GDPR Ethical AI Compliance Protocol">
-              <i data-lucide="shield-check" style="width:14px;height:14px;color:var(--status-emerald);"></i>
-              <span>DPDP 2023 Verified</span>
-            </button>
-            <a href="/api/reports/download-html" class="overview-export-brief-btn" download="Attrition_Lens_Executive_Brief.html" title="Download standalone executive intelligence report">
-              <i data-lucide="file-text" style="width:14px;height:14px;"></i>
-              <span>Export HTML</span>
-            </a>
+
+          <!-- Row 2: Telemetry Alert Chips -->
+          <div class="toolbar-row row-secondary">
+            <div class="overview-alert-chips">
+              <span class="overview-alert-chip critical">
+                <span class="chip-pulse-dot"></span>
+                <strong>Hotspot:</strong> Delivery Ops (24.8%)
+              </span>
+              <span class="overview-alert-chip warning">
+                <i data-lucide="flame" style="width:12px;height:12px;"></i>
+                <strong>Overtime Drag:</strong> +14.2% exit risk
+              </span>
+              <span class="overview-alert-chip success">
+                <i data-lucide="shield-check" style="width:12px;height:12px;"></i>
+                <strong>Retention:</strong> 82.0% Active
+              </span>
+            </div>
           </div>
         </div>
 
