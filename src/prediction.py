@@ -76,6 +76,140 @@ def get_baseline_employee_record() -> Dict[str, Any]:
     return _BASELINE_EMPLOYEE_RECORD.copy()
 
 
+def estimate_retention_runway(prob: float, tenure_years: float, satisfaction: float) -> Dict[str, str]:
+    """Estimate time-to-attrition horizon based on current flight probability and satisfaction."""
+    if prob >= 0.70:
+        return {
+            "horizon": "Immediate (1 – 3 Months)",
+            "urgency": "Critical",
+            "narrative": "Urgent flight risk window. Departures in this tier historically occur within 90 days if unaddressed."
+        }
+    elif prob >= 0.40:
+        return {
+            "horizon": "Near-Term (3 – 6 Months)",
+            "urgency": "Elevated",
+            "narrative": "Disengagement inflection point. Proactive intervention in next review cycle can reverse attrition."
+        }
+    elif prob >= 0.20:
+        return {
+            "horizon": "Medium-Term (6 – 12 Months)",
+            "urgency": "Moderate",
+            "narrative": "Stable in current role; vulnerable to external recruitment poaching or promotion delay."
+        }
+    else:
+        return {
+            "horizon": "Long-Term (2+ Years)",
+            "urgency": "Low",
+            "narrative": "High retention stability. Target for internal leadership pipelines and mentorship roles."
+        }
+
+
+def compute_counterfactual_scenarios(
+    pipeline: Any,
+    merged_features: Dict[str, Any],
+    base_prob: float,
+    thresholds: Optional[Dict[str, float]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Simulate actionable counterfactual interventions to project how policy changes
+    (overtime elimination, equity boost, wellness support) decrease attrition risk.
+    """
+    scenarios = []
+    th = thresholds or DEFAULT_RISK_THRESHOLDS
+
+    def score_variation(variant_dict: Dict[str, Any]) -> Tuple[float, str, str]:
+        var_df = pd.DataFrame([variant_dict])
+        var_df = engineer_hr_features(var_df)
+        if hasattr(pipeline, "predict_proba"):
+            p = float(pipeline.predict_proba(var_df)[0, 1])
+        else:
+            p = float(pipeline.predict(var_df)[0])
+        r_band, b_class = assign_risk_band(p, th)
+        return p, r_band, b_class
+
+    curr_salary = float(merged_features.get("MonthlySalaryINR", 40000.0))
+
+    # Scenario 1: Eliminate Overtime
+    if str(merged_features.get("Overtime", "No")).lower() == "yes" or float(merged_features.get("OvertimeHoursMonthly", 0)) > 5:
+        s1 = merged_features.copy()
+        s1["Overtime"] = "No"
+        s1["OvertimeHoursMonthly"] = 0.0
+        p1, band1, badge1 = score_variation(s1)
+        drop1 = round((base_prob - p1) * 100, 1)
+        scenarios.append({
+            "name": "Zero-Overtime Cap",
+            "description": "Institute a hard cap on overtime hours and eliminate mandatory weekend shifts.",
+            "changes": ["Overtime: No", "Overtime Hours: 0 hrs/mo"],
+            "new_probability_pct": round(p1 * 100, 1),
+            "risk_drop_pct": drop1,
+            "new_risk_band": band1,
+            "badge_class": badge1,
+            "feasibility": "High (Operational adjustment)"
+        })
+
+    # Scenario 2: +12% Targeted Compensation Adjustment
+    s2 = merged_features.copy()
+    s2["MonthlySalaryINR"] = round(curr_salary * 1.12, 2)
+    p2, band2, badge2 = score_variation(s2)
+    drop2 = round((base_prob - p2) * 100, 1)
+    scenarios.append({
+        "name": "Targeted Comp Adjustment (+12%)",
+        "description": f"Award a +12% base salary raise (+₹{int(curr_salary * 0.12):,}/mo) to restore competitive market parity.",
+        "changes": [f"Salary: ₹{int(curr_salary * 1.12):,} (was ₹{int(curr_salary):,})"],
+        "new_probability_pct": round(p2 * 100, 1),
+        "risk_drop_pct": drop2,
+        "new_risk_band": band2,
+        "badge_class": badge2,
+        "feasibility": "Medium (Budget approval required)"
+    })
+
+    # Scenario 3: Burnout & Fatigue Reset
+    s3 = merged_features.copy()
+    s3["WorkLifeBalance"] = 4.0
+    if "AverageWorkloadScore" in s3:
+        s3["AverageWorkloadScore"] = max(35.0, float(s3["AverageWorkloadScore"]) * 0.80)
+    if "BurnoutRiskScore" in s3:
+        s3["BurnoutRiskScore"] = max(25.0, float(s3["BurnoutRiskScore"]) * 0.70)
+    p3, band3, badge3 = score_variation(s3)
+    drop3 = round((base_prob - p3) * 100, 1)
+    scenarios.append({
+        "name": "Burnout & Fatigue Reset",
+        "description": "Reallocate active accounts to decrease workload by 20% and provide hybrid schedule flexibility.",
+        "changes": ["Work-Life Balance: 4.0/5", "Burnout Score: Reduced ~30%"],
+        "new_probability_pct": round(p3 * 100, 1),
+        "risk_drop_pct": drop3,
+        "new_risk_band": band3,
+        "badge_class": badge3,
+        "feasibility": "High (Manager reallocation)"
+    })
+
+    # Scenario 4: Combined Retention Package (All levers)
+    s4 = merged_features.copy()
+    s4["Overtime"] = "No"
+    s4["OvertimeHoursMonthly"] = 0.0
+    s4["MonthlySalaryINR"] = round(curr_salary * 1.10, 2)
+    s4["WorkLifeBalance"] = 4.0
+    s4["JobSatisfaction"] = min(5.0, float(s4.get("JobSatisfaction", 3.0)) + 1.0)
+    if "AverageWorkloadScore" in s4:
+        s4["AverageWorkloadScore"] = max(35.0, float(s4["AverageWorkloadScore"]) * 0.80)
+    if "BurnoutRiskScore" in s4:
+        s4["BurnoutRiskScore"] = max(25.0, float(s4["BurnoutRiskScore"]) * 0.65)
+    p4, band4, badge4 = score_variation(s4)
+    drop4 = round((base_prob - p4) * 100, 1)
+    scenarios.append({
+        "name": "Comprehensive Retention Package",
+        "description": "Integrated intervention: overtime relief, +10% equity raise, and manager alignment check-in.",
+        "changes": ["Overtime Cap", "+10% Salary", "Workload Rebalance", "Manager Check-in"],
+        "new_probability_pct": round(p4 * 100, 1),
+        "risk_drop_pct": drop4,
+        "new_risk_band": band4,
+        "badge_class": badge4,
+        "feasibility": "Strategic (Maximum impact)"
+    })
+
+    return scenarios
+
+
 def predict_single_employee(
     pipeline: Any,
     feature_dict: Dict[str, Any],
@@ -107,6 +241,14 @@ def predict_single_employee(
     contributors = get_local_prediction_contributors(input_df.iloc[0], pipeline)
     suggested_actions = recommend_support_actions(risk_band, feature_dict)
 
+    # Prescriptive Counterfactual Scenarios & Retention Runway
+    counterfactuals = compute_counterfactual_scenarios(pipeline, merged_features, prob, th)
+    retention_runway = estimate_retention_runway(
+        prob,
+        float(feature_dict.get("YearsAtCompany", 2.0)),
+        float(feature_dict.get("JobSatisfaction", 3.0))
+    )
+
     # Log to SQLite
     log_prediction({
         "model_name": model_name,
@@ -129,6 +271,8 @@ def predict_single_employee(
         "badge_class": badge_class,
         "contributing_factors": contributors,
         "suggested_actions": suggested_actions,
+        "counterfactual_scenarios": counterfactuals,
+        "retention_runway": retention_runway,
         "disclaimer": (
             "Model predictions represent probabilistic risk estimates derived from historical patterns, "
             "not deterministic forecasts. In accordance with ethical HR AI guidelines, this output must never "

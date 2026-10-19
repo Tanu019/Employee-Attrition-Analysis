@@ -9,11 +9,26 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 import pandas as pd
 
+import random
 from config.settings import DATABASE_PATH
 
 
 def get_db_connection() -> sqlite3.Connection:
     """Ensure database directory exists and return a SQLite connection with serverless /tmp fallback."""
+    import os
+    import shutil
+    is_serverless = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+    if is_serverless:
+        tmp_db = Path("/tmp") / "attrition_analytics.db"
+        try:
+            if not tmp_db.exists() and DATABASE_PATH.exists():
+                shutil.copyfile(DATABASE_PATH, tmp_db)
+        except Exception:
+            pass
+        conn = sqlite3.connect(str(tmp_db))
+        conn.row_factory = sqlite3.Row
+        return conn
+
     try:
         DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(str(DATABASE_PATH))
@@ -21,7 +36,10 @@ def get_db_connection() -> sqlite3.Connection:
         return conn
     except (sqlite3.OperationalError, OSError, PermissionError):
         tmp_db = Path("/tmp") / "attrition_analytics.db"
-        tmp_db.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            tmp_db.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
         conn = sqlite3.connect(str(tmp_db))
         conn.row_factory = sqlite3.Row
         return conn
@@ -29,8 +47,14 @@ def get_db_connection() -> sqlite3.Connection:
 
 def init_database():
     """Initialize database tables for experiments, predictions, and uploads."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+    except Exception:
+        tmp_db = Path("/tmp") / "attrition_analytics.db"
+        conn = sqlite3.connect(str(tmp_db))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
 
     # Experiments table
     cursor.execute("""
@@ -99,6 +123,19 @@ def init_database():
         review_period TEXT NOT NULL,
         kpi TEXT NOT NULL,
         status TEXT NOT NULL
+    )
+    """)
+
+    # Enterprise compliance audit trail
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS audit_logs (
+        log_id TEXT PRIMARY KEY,
+        timestamp TEXT NOT NULL,
+        actor TEXT NOT NULL,
+        role TEXT NOT NULL,
+        action TEXT NOT NULL,
+        details TEXT NOT NULL,
+        ip_address TEXT DEFAULT '127.0.0.1'
     )
     """)
 
@@ -233,3 +270,38 @@ def delete_action_plan(plan_id: str):
     cursor.execute("DELETE FROM retention_action_plans WHERE plan_id = ?", (str(plan_id),))
     conn.commit()
     conn.close()
+
+
+def log_audit_event(actor: str, role: str, action: str, details: str, ip_address: str = "127.0.0.1") -> str:
+    """Log an ethical compliance / governance action event to SQLite audit trail."""
+    init_database()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    log_id = f"AUD_{datetime.now().strftime('%Y%m%d%H%M%S')}_{random.randint(100, 999)}"
+    cursor.execute("""
+    INSERT INTO audit_logs (log_id, timestamp, actor, role, action, details, ip_address)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        log_id,
+        datetime.now().isoformat(),
+        actor,
+        role,
+        action,
+        details,
+        ip_address
+    ))
+    conn.commit()
+    conn.close()
+    return log_id
+
+
+def get_recent_audit_logs(limit: int = 50) -> List[Dict[str, Any]]:
+    """Retrieve chronological audit trail entries for governance and compliance."""
+    init_database()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT ?", (limit,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+

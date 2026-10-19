@@ -6,6 +6,7 @@ and SHAP value summaries and individual local contributions.
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
+from sklearn.inspection import permutation_importance
 try:
     import shap
 except ImportError:
