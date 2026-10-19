@@ -1020,24 +1020,68 @@
            MODULE 3: PREDICTION & MODEL (CONSOLIDATED)
            ========================================================= -->
       <section id="mod-predictor" class="view-section">
-        <div class="section-banner">
-          <h2>Predictive Intelligence & Machine Learning Diagnostics</h2>
-          <p>
-            Evaluate validated held-out performance benchmarks, simulate flight risk for individual staff or batch rosters, and examine feature explainability.
-          </p>
-        </div>
+        <!-- Unified Section Banner with Integrated Left-Side Diagnostics View Dropdown -->
+        <div class="section-banner predictive-banner">
+          <div class="predictive-banner-top">
+            <div class="predictive-banner-info">
+              <div class="predictive-banner-badge">
+                <i data-lucide="cpu" style="width:12px;height:12px;"></i> ML DIAGNOSTICS & INFERENCE ENGINE
+              </div>
+              <h2>Predictive Intelligence & Machine Learning Diagnostics</h2>
+              <p>
+                Evaluate validated held-out performance benchmarks, simulate flight risk for individual staff or batch rosters, and examine feature explainability.
+              </p>
+            </div>
+          </div>
 
-        <!-- Sub-Navigation Tabs -->
-        <div class="app-tabs">
-          <button class="tab-btn active" data-tab="tab-model-performance">
-            <i data-lucide="award"></i> Model Performance
-          </button>
-          <button class="tab-btn" data-tab="tab-predict-attrition">
-            <i data-lucide="user-check"></i> Predict Attrition
-          </button>
-          <button class="tab-btn" data-tab="tab-model-explainability">
-            <i data-lucide="sparkles"></i> Explainability
-          </button>
+          <!-- Left-Side Dropdown Navigation Controls -->
+          <div class="predictive-nav-bar">
+            <div class="predictive-dropdown-wrapper">
+              <label class="predictive-dropdown-label" for="predictor-dropdown-trigger">
+                <i data-lucide="layers" style="width:13px;height:13px;"></i> Select View:
+              </label>
+              <div class="custom-dropdown predictive-dropdown" id="predictor-view-dropdown">
+                <button type="button" class="dropdown-trigger-btn" id="predictor-dropdown-trigger" data-tab="tab-model-performance" aria-haspopup="listbox" aria-expanded="false" title="Click to switch diagnostics view">
+                  <span class="trigger-icon" id="predictor-selected-icon"><i data-lucide="award"></i></span>
+                  <span class="trigger-label" id="predictor-selected-label">Model Performance</span>
+                  <i data-lucide="chevron-down" class="trigger-chevron"></i>
+                </button>
+
+                <div class="dropdown-popover" id="predictor-dropdown-popover" role="listbox" aria-label="Select Diagnostics View">
+                  <button type="button" class="tab-btn dropdown-opt active" data-tab="tab-model-performance" data-icon="award" data-label="Model Performance" role="option" aria-selected="true">
+                    <div class="opt-icon pulse-lime"><i data-lucide="award"></i></div>
+                    <div class="opt-text">
+                      <span class="opt-title">Model Performance</span>
+                      <span class="opt-sub">Held-out test set benchmarks & ROC/PR curves</span>
+                    </div>
+                    <i data-lucide="check" class="opt-check"></i>
+                  </button>
+                  <button type="button" class="tab-btn dropdown-opt" data-tab="tab-predict-attrition" data-icon="user-check" data-label="Predict Attrition" role="option" aria-selected="false">
+                    <div class="opt-icon pulse-blue"><i data-lucide="user-check"></i></div>
+                    <div class="opt-text">
+                      <span class="opt-title">Predict Attrition</span>
+                      <span class="opt-sub">Interactive flight risk simulator & batch roster</span>
+                    </div>
+                    <i data-lucide="check" class="opt-check"></i>
+                  </button>
+                  <button type="button" class="tab-btn dropdown-opt" data-tab="tab-model-explainability" data-icon="sparkles" data-label="Explainability" role="option" aria-selected="false">
+                    <div class="opt-icon pulse-purple"><i data-lucide="sparkles"></i></div>
+                    <div class="opt-text">
+                      <span class="opt-title">Explainability</span>
+                      <span class="opt-sub">SHAP global attribution & feature drivers</span>
+                    </div>
+                    <i data-lucide="check" class="opt-check"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Audit Meta Badges on Right -->
+            <div class="predictive-meta-badges">
+              <span class="meta-badge"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> Leakage-Free 5-Fold CV</span>
+              <span class="meta-badge"><i data-lucide="zap" style="width:12px;height:12px;"></i> Real-Time Inference</span>
+            </div>
+          </div>
         </div>
 
         <!-- TAB 1: Model Performance -->

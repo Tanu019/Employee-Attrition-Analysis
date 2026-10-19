@@ -114,6 +114,7 @@ class AttritionApp {
     this.initDynamicGreeting();
     this.setupNavigation();
     this.setupTabs();
+    this.setupPredictorDropdown();
     this.setupAccordions();
     this.initHeroCanvas();
     this.setupGlobalKeyboard();
@@ -343,10 +344,87 @@ class AttritionApp {
       pane.classList.toggle('active', pane.id === tabId);
     });
 
+    if (container.id === 'mod-predictor') {
+      this.syncPredictorDropdown(tabId);
+    }
+
     if (window.lucide) window.lucide.createIcons();
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 60);
+  }
+
+  setupPredictorDropdown() {
+    const dropdown = document.getElementById('predictor-view-dropdown');
+    const trigger = document.getElementById('predictor-dropdown-trigger');
+    const popover = document.getElementById('predictor-dropdown-popover');
+    if (!dropdown || !trigger || !popover) return;
+
+    const toggle = (force) => {
+      const isOpen = force !== undefined ? force : !dropdown.classList.contains('open');
+      dropdown.classList.toggle('open', isOpen);
+      trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    };
+
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggle();
+    });
+
+    popover.querySelectorAll('.dropdown-opt').forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabId = opt.getAttribute('data-tab');
+        if (tabId) {
+          this.activateTab(tabId);
+        }
+        toggle(false);
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) {
+        toggle(false);
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+        toggle(false);
+        trigger.focus();
+      }
+    });
+  }
+
+  syncPredictorDropdown(tabId) {
+    const trigger = document.getElementById('predictor-dropdown-trigger');
+    const labelEl = document.getElementById('predictor-selected-label');
+    const iconEl = document.getElementById('predictor-selected-icon');
+    const popover = document.getElementById('predictor-dropdown-popover');
+    if (!trigger || !labelEl || !popover) return;
+
+    const opt = popover.querySelector(`.dropdown-opt[data-tab="${tabId}"]`);
+    if (opt) {
+      popover.querySelectorAll('.dropdown-opt').forEach(o => {
+        o.classList.remove('active');
+        o.setAttribute('aria-selected', 'false');
+      });
+      opt.classList.add('active');
+      opt.setAttribute('aria-selected', 'true');
+
+      const label = opt.getAttribute('data-label') || opt.querySelector('.opt-title')?.textContent?.trim();
+      const iconName = opt.getAttribute('data-icon') || 'award';
+
+      if (label) labelEl.textContent = label;
+      if (iconEl) {
+        iconEl.innerHTML = `<i data-lucide="${iconName}"></i>`;
+      }
+      trigger.setAttribute('data-tab', tabId);
+      if (window.lucide) window.lucide.createIcons();
+    }
   }
 
   navigateTo(viewId, targetTab = null) {
@@ -429,6 +507,9 @@ class AttritionApp {
           container.querySelectorAll('.tab-pane').forEach(p => {
             p.classList.toggle('active', p.id === tabToActivate);
           });
+          if (container.id === 'mod-predictor') {
+            this.syncPredictorDropdown(tabToActivate);
+          }
         }
       }
     }
