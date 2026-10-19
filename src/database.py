@@ -14,12 +14,13 @@ from config.settings import DATABASE_PATH
 
 
 def get_db_connection() -> sqlite3.Connection:
-    """Ensure database directory exists and return a SQLite connection with serverless /tmp fallback."""
+    """Ensure database directory exists and return a SQLite connection with serverless temp directory fallback."""
     import os
     import shutil
+    import tempfile
     is_serverless = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
     if is_serverless:
-        tmp_db = Path("/tmp") / "attrition_analytics.db"
+        tmp_db = Path(tempfile.gettempdir()) / "attrition_analytics.db"
         try:
             if not tmp_db.exists() and DATABASE_PATH.exists():
                 shutil.copyfile(DATABASE_PATH, tmp_db)
@@ -35,7 +36,8 @@ def get_db_connection() -> sqlite3.Connection:
         conn.row_factory = sqlite3.Row
         return conn
     except (sqlite3.OperationalError, OSError, PermissionError):
-        tmp_db = Path("/tmp") / "attrition_analytics.db"
+        import tempfile
+        tmp_db = Path(tempfile.gettempdir()) / "attrition_analytics.db"
         try:
             tmp_db.parent.mkdir(parents=True, exist_ok=True)
         except Exception:
@@ -51,7 +53,8 @@ def init_database():
         conn = get_db_connection()
         cursor = conn.cursor()
     except Exception:
-        tmp_db = Path("/tmp") / "attrition_analytics.db"
+        import tempfile
+        tmp_db = Path(tempfile.gettempdir()) / "attrition_analytics.db"
         conn = sqlite3.connect(str(tmp_db))
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
