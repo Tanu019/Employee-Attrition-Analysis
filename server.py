@@ -1632,6 +1632,25 @@ def download_markdown_report():
     )
 
 
+@app.get("/api/reports/download-docx")
+def download_docx_report():
+    """Download the comprehensive academic & technical Word documentation report."""
+    docx_file = BASE_DIR / "docs" / "Attrition_Lens_Final_Academic_Report.docx"
+    if not docx_file.exists():
+        try:
+            import build_full_report_docx
+            build_full_report_docx.create_report()
+        except Exception as e:
+            logger.error(f"Error compiling docx report: {e}")
+            raise HTTPException(status_code=500, detail="Report generation in progress.")
+    return FileResponse(
+        str(docx_file),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename="Attrition_Lens_Final_Academic_Report.docx"
+    )
+
+
+
 # -------------------------------------------------------------
 # STATIC FILES & FRONTEND SERVING
 # -------------------------------------------------------------

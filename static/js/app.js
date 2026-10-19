@@ -2983,6 +2983,38 @@ class AttritionApp {
       this.showToast(`Pre-filled Action Plan for ${empId}`, 'success');
     }, 300);
   }
+
+  // Filter Data Dictionary Table by Search Query
+  filterDocDictionary(query) {
+    const q = (query || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#doc-dict-body tr');
+    let visibleCount = 0;
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const matchesSearch = !q || text.includes(q);
+      const activeCat = this.activeDocCategory || 'ALL';
+      const rowCat = row.getAttribute('data-cat') || '';
+      const matchesCat = activeCat === 'ALL' || rowCat.includes(activeCat);
+
+      if (matchesSearch && matchesCat) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    const countBadge = document.getElementById('doc-dict-count');
+    if (countBadge) countBadge.textContent = `${visibleCount} Features Listed`;
+  }
+
+  // Filter Data Dictionary Table by Category Pill
+  filterDocCategory(cat, btn) {
+    this.activeDocCategory = cat;
+    document.querySelectorAll('.doc-cat-pill').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const searchInput = document.getElementById('doc-dict-search-input');
+    this.filterDocDictionary(searchInput ? searchInput.value : '');
+  }
 }
 
 // Global App Instance
