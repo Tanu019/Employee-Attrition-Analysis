@@ -104,6 +104,7 @@ class AttritionApp {
     this.employeeTotalPages = 1;
     this.searchTimeout = null;
     this.privacyMode = 'public'; // 'public' | 'hr_admin'
+    this.loadedViews = new Set(['mod-overview']);
   }
 
   async init() {
@@ -121,20 +122,11 @@ class AttritionApp {
     }
 
     try {
+      // Fast path: load only the active Overview screen resources immediately
       await this.loadInitialData();
       await this.loadDynamicInsights();
       await this.applyDashboardFilters();
       this.loadOverviewDepartmentMatrix();
-      this.loadDepartmentIntelligence();
-      this.loadEmployees(1);
-      this.loadDeepDiveData();
-      this.loadModelEvaluationData();
-      this.loadExplainabilityData();
-      this.loadRetentionData();
-      this.loadActionPlans();
-      this.loadExperimentHistory();
-      this.executeCalculator();
-      this.calculateRoi();
     } catch (err) {
       console.error("Initialization error:", err);
     }
@@ -166,17 +158,36 @@ class AttritionApp {
     el.textContent = `${timeGreeting}, Tanu Chaudhary`;
   }
 
-  // Global keyboard shortcut: Ctrl+K → command bar
+  // Global keyboard shortcuts & modal backdrop handlers
   setupGlobalKeyboard() {
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         this.openCommandBar();
       }
+      if (e.key === 'Escape') {
+        this.closeCopilotDrawer();
+        this.closeCommandBar();
+        this.closeRiskDrawer();
+      }
+    });
+
+    // Close Copilot floating drawer when clicking outside
+    document.addEventListener('click', (e) => {
+      const drawer = document.getElementById('copilot-floating-drawer');
+      if (drawer && drawer.style.display !== 'none' && !drawer.contains(e.target) && !e.target.closest('[onclick*="CopilotDrawer"]')) {
+        this.closeCopilotDrawer();
+      }
     });
   }
 
 
+
+  toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    this.setTheme(next);
+  }
 
   initTheme() {
     let savedTheme = 'dark';
@@ -200,6 +211,16 @@ class AttritionApp {
     if (darkBtn && lightBtn) {
       darkBtn.classList.toggle('active', !isLight);
       lightBtn.classList.toggle('active', isLight);
+    }
+
+    // Update compact icon toggle button if present
+    const toggleBtn = document.getElementById('theme-icon-toggle');
+    const toggleIcon = document.getElementById('theme-toggle-icon');
+    if (toggleBtn && toggleIcon) {
+      // If currently light, next is dark (show moon); if currently dark, next is light (show sun)
+      toggleIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+      toggleBtn.setAttribute('title', isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+      toggleBtn.setAttribute('aria-label', isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode');
     }
 
     try {
@@ -425,6 +446,26 @@ class AttritionApp {
     const mainEl = document.querySelector('.app-main');
     if (mainEl) mainEl.scrollTop = 0;
 
+    // Lazily load data for modules on first access
+    if (!this.loadedViews.has(target)) {
+      this.loadedViews.add(target);
+      if (target === 'mod-attrition') {
+        this.loadDepartmentIntelligence();
+        this.loadEmployees(1);
+        this.loadDeepDiveData();
+      } else if (target === 'mod-predictor') {
+        this.loadModelEvaluationData();
+        this.loadExplainabilityData();
+        this.loadExperimentHistory();
+      } else if (target === 'mod-retention') {
+        this.loadRetentionData();
+        this.loadActionPlans();
+        this.calculateRoi();
+      } else if (target === 'mod-upload') {
+        this.executeCalculator();
+      }
+    }
+
     // Re-render and resize charts for unhidden view
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
@@ -625,14 +666,41 @@ class AttritionApp {
     }
   }
 
-  // --- AI Retention Copilot Controller ---
+  // --- AI Retention Copilot Controller (Floating Drawer) ---
+  toggleCopilotDrawer() {
+    const drawer = document.getElementById('copilot-floating-drawer');
+    if (!drawer) return;
+    const isHidden = drawer.style.display === 'none' || !drawer.style.display;
+    if (isHidden) {
+      this.openCopilotDrawer();
+    } else {
+      this.closeCopilotDrawer();
+    }
+  }
+
+  openCopilotDrawer() {
+    const drawer = document.getElementById('copilot-floating-drawer');
+    if (!drawer) return;
+    drawer.style.display = 'flex';
+    const input = document.getElementById('copilot-query-input');
+    if (input) setTimeout(() => input.focus(), 80);
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  closeCopilotDrawer() {
+    const drawer = document.getElementById('copilot-floating-drawer');
+    if (drawer) drawer.style.display = 'none';
+  }
+
   setAndAskCopilot(queryText) {
+    this.openCopilotDrawer();
     const input = document.getElementById('copilot-query-input');
     if (input) input.value = queryText;
     this.askCopilot();
   }
 
   async askCopilot() {
+    this.openCopilotDrawer();
     const input = document.getElementById('copilot-query-input');
     const query = input?.value.trim();
     if (!query) return;
@@ -686,6 +754,7 @@ class AttritionApp {
         ` : ''}
       `;
       if (window.lucide) window.lucide.createIcons();
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } catch (err) {
       container.innerHTML = `
         <div style="color:var(--status-crimson);font-size:0.84rem;">
@@ -1216,7 +1285,7 @@ class AttritionApp {
         showlegend: false,
         margin: { l: 15, r: 15, t: 15, b: 15 }
       };
-      Plotly.newPlot('chart-overall-dist', donutData, donutLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-overall-dist', donutData, donutLayout, { responsive: true, displayModeBar: false });
     }
 
     // 2. Department Breakdown (Horizontal Bar Chart comparing department attrition rates)
@@ -1286,7 +1355,7 @@ class AttritionApp {
           }
         ]
       };
-      Plotly.newPlot('chart-dept-attrition', deptData, deptLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-dept-attrition', deptData, deptLayout, { responsive: true, displayModeBar: false });
     }
 
     // 3. Role Breakdown
@@ -1309,7 +1378,7 @@ class AttritionApp {
         margin: { l: 150, r: 25, t: 20, b: 40 },
         xaxis: { title: 'Attrition Rate (%)', gridcolor: THEME.borderCard }
       };
-      Plotly.newPlot('chart-role-attrition', roleData, roleLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-role-attrition', roleData, roleLayout, { responsive: true, displayModeBar: false });
     }
 
     // 4. Tenure Breakdown
@@ -1340,7 +1409,7 @@ class AttritionApp {
         yaxis: { title: 'Attrition Rate (%)', gridcolor: THEME.borderCard },
         xaxis: { title: 'Tenure Group' }
       };
-      Plotly.newPlot('chart-tenure-attrition', tenureData, tenureLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-tenure-attrition', tenureData, tenureLayout, { responsive: true, displayModeBar: false });
     }
 
     // 5. Salary Band Breakdown
@@ -1371,7 +1440,7 @@ class AttritionApp {
         yaxis: { title: 'Attrition Rate (%)', gridcolor: THEME.borderCard },
         xaxis: { title: 'Salary Tier' }
       };
-      Plotly.newPlot('chart-salary-attrition', salaryData, salaryLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-salary-attrition', salaryData, salaryLayout, { responsive: true, displayModeBar: false });
     }
 
     // 6. Job Satisfaction Breakdown
@@ -1391,7 +1460,7 @@ class AttritionApp {
         yaxis: { title: 'Attrition Rate (%)', gridcolor: THEME.borderCard },
         xaxis: { title: 'Satisfaction Rating (1-5)' }
       };
-      Plotly.newPlot('chart-satisfaction-attrition', satData, satLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-satisfaction-attrition', satData, satLayout, { responsive: true, displayModeBar: false });
     }
 
     // 7. Overtime Impact
@@ -1410,7 +1479,7 @@ class AttritionApp {
         ...defaultLayout,
         yaxis: { title: 'Attrition Rate (%)', gridcolor: THEME.borderCard }
       };
-      Plotly.newPlot('chart-overtime-attrition', otData, otLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-overtime-attrition', otData, otLayout, { responsive: true, displayModeBar: false });
     }
 
     // 8. Job Level Breakdown
@@ -1441,7 +1510,7 @@ class AttritionApp {
         yaxis: { title: 'Attrition Rate (%)', gridcolor: THEME.borderCard },
         xaxis: { title: 'Hierarchy Level' }
       };
-      Plotly.newPlot('chart-joblevel-attrition', lvlData, lvlLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-joblevel-attrition', lvlData, lvlLayout, { responsive: true, displayModeBar: false });
     }
 
     // 9. Monthly Attrition Trend
@@ -1479,7 +1548,7 @@ class AttritionApp {
         yaxis: { title: 'Departure Count', gridcolor: THEME.borderCard },
         yaxis2: { title: 'Monthly Rate (%)', overlaying: 'y', side: 'right', showgrid: false }
       };
-      Plotly.newPlot('chart-monthly-trend', trendData, trendLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-monthly-trend', trendData, trendLayout, { responsive: true, displayModeBar: false });
     }
 
     // 10. Model Performance Summary
@@ -1505,7 +1574,7 @@ class AttritionApp {
         yaxis: { title: 'Score (%)', gridcolor: THEME.borderCard },
         xaxis: { tickangle: -10 }
       };
-      Plotly.newPlot('chart-model-summary', modelData, modelLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-model-summary', modelData, modelLayout, { responsive: true, displayModeBar: false });
     }
   }
 
@@ -1673,7 +1742,7 @@ class AttritionApp {
             const statusClass = (status === 'Exited' || status === 'Departed') ? 'badge-high' : 'badge-low';
 
             const salVal = Math.round(emp.MonthlySalaryINR || 0);
-            let salDisplay = `₹${salVal.toLocaleString()}`;
+            let salDisplay = `₹${salVal.toLocaleString('en-IN')}`;
             if (this.privacyMode === 'public') {
               if (salVal < 35000) salDisplay = 'Band 1 (< ₹35K)';
               else if (salVal < 60000) salDisplay = 'Band 2 (₹35K-₹60K)';
@@ -1919,7 +1988,7 @@ class AttritionApp {
         margin: { l: 150, r: 25, t: 20, b: 40 },
         xaxis: { title: 'Correlation with Attrition', gridcolor: THEME.borderCard }
       };
-      Plotly.newPlot('chart-correlation-bars', corrData, corrLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-correlation-bars', corrData, corrLayout, { responsive: true, displayModeBar: false });
     }
   }
 
@@ -2121,7 +2190,7 @@ class AttritionApp {
         yaxis: { title: 'True Positive Rate (Recall)', gridcolor: THEME.borderCard },
         legend: { x: 0.55, y: 0.15, bgcolor: THEME.bgCard, bordercolor: THEME.borderCard, borderwidth: 1 }
       };
-      Plotly.newPlot('chart-roc-curve', traces, layout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-roc-curve', traces, layout, { responsive: true, displayModeBar: false });
     }
 
     // PR Curve
@@ -2152,7 +2221,7 @@ class AttritionApp {
         yaxis: { title: 'Precision', gridcolor: THEME.borderCard },
         legend: { x: 0.55, y: 0.85, bgcolor: THEME.bgCard, bordercolor: THEME.borderCard, borderwidth: 1 }
       };
-      Plotly.newPlot('chart-pr-curve', traces, layout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-pr-curve', traces, layout, { responsive: true, displayModeBar: false });
     }
   }
 
@@ -2416,7 +2485,7 @@ class AttritionApp {
         margin: { l: 180, r: 25, t: 20, b: 40 },
         xaxis: { title: 'Mean Drop in Test ROC-AUC', gridcolor: THEME.borderCard }
       };
-      Plotly.newPlot('chart-permutation-importance', pData, pLayout, { responsive: true, displayModeBar: false });
+      Plotly.react('chart-permutation-importance', pData, pLayout, { responsive: true, displayModeBar: false });
     }
   }
 
@@ -2441,16 +2510,17 @@ class AttritionApp {
 
   async calculateRoi() {
     const cohort = parseInt(document.getElementById('roi-cohort-size')?.value) || 150;
-    const salary = parseFloat(document.getElementById('roi-avg-salary')?.value) || 65000;
+    const salary = parseFloat(document.getElementById('roi-avg-salary')?.value) || 500000;
     const mult = parseFloat(document.getElementById('roi-cost-multiplier')?.value) || 1.5;
     const rate = parseFloat(document.getElementById('roi-success-rate')?.value) || 0.35;
+    const costPerEmp = 15000.0;
 
     const payload = {
       high_risk_count: cohort,
       avg_annual_salary: salary,
       turnover_cost_pct: mult,
       intervention_success_rate: rate,
-      intervention_cost_per_emp: 1800.0
+      intervention_cost_per_emp: costPerEmp
     };
 
     try {
@@ -2461,12 +2531,24 @@ class AttritionApp {
       });
       if (res.ok) {
         const out = await res.json();
-        document.getElementById('roi-gross-cost').textContent = `$${(out.gross_turnover_exposure_cost / 1e6).toFixed(2)}M`;
-        document.getElementById('roi-net-savings').textContent = `$${(out.net_savings / 1e6).toFixed(2)}M`;
+
+        const formatIndianCurrencyCompact = (val) => {
+          const isNeg = val < 0;
+          const abs = Math.abs(val);
+          if (abs >= 10000000) {
+            return `${isNeg ? '-' : ''}₹${(abs / 10000000).toFixed(2)} Cr`;
+          } else if (abs >= 100000) {
+            return `${isNeg ? '-' : ''}₹${(abs / 100000).toFixed(2)} Lakhs`;
+          }
+          return `${isNeg ? '-' : ''}₹${Math.round(abs).toLocaleString('en-IN')}`;
+        };
+
+        document.getElementById('roi-gross-cost').textContent = formatIndianCurrencyCompact(out.gross_turnover_exposure_cost);
+        document.getElementById('roi-net-savings').textContent = formatIndianCurrencyCompact(out.net_savings);
         document.getElementById('roi-retained-count').textContent = `${out.projected_retained_employees} Employees`;
-        document.getElementById('roi-unit-cost').textContent = `$${Math.round(out.turnover_cost_per_employee).toLocaleString()}`;
-        document.getElementById('roi-program-cost').textContent = `$${Math.round(out.total_intervention_cost).toLocaleString()} ($1,800 / emp)`;
-        document.getElementById('roi-ratio').textContent = `${Math.round(out.roi_percentage)}%`;
+        document.getElementById('roi-unit-cost').textContent = `₹${Math.round(out.turnover_cost_per_employee).toLocaleString('en-IN')}`;
+        document.getElementById('roi-program-cost').textContent = `₹${Math.round(out.total_intervention_cost).toLocaleString('en-IN')} (₹${Math.round(costPerEmp).toLocaleString('en-IN')} / emp)`;
+        document.getElementById('roi-ratio').textContent = `${Math.round(out.roi_percentage).toLocaleString('en-IN')}%`;
       }
     } catch (e) {
       console.error('ROI simulation error:', e);
@@ -2718,6 +2800,7 @@ class AttritionApp {
 
 // Global App Instance
 const app = new AttritionApp();
+window.app = app;
 document.addEventListener('DOMContentLoaded', () => {
   app.init();
 });

@@ -6,8 +6,10 @@ and SHAP value summaries and individual local contributions.
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
-from sklearn.inspection import permutation_importance
-import shap
+try:
+    import shap
+except ImportError:
+    shap = None
 
 
 def compute_tree_feature_importance(
@@ -89,6 +91,9 @@ def compute_shap_explanations(
         feature_names = [f"Feature_{i}" for i in range(X_trans.shape[1])]
 
     # Use TreeExplainer if tree-based
+    if shap is None:
+        return None, None, feature_names
+
     if hasattr(clf, "estimators_") or "DecisionTree" in type(clf).__name__:
         try:
             explainer = shap.TreeExplainer(clf)

@@ -13,11 +13,18 @@ from config.settings import DATABASE_PATH
 
 
 def get_db_connection() -> sqlite3.Connection:
-    """Ensure database directory exists and return a SQLite connection."""
-    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DATABASE_PATH))
-    conn.row_factory = sqlite3.Row
-    return conn
+    """Ensure database directory exists and return a SQLite connection with serverless /tmp fallback."""
+    try:
+        DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(DATABASE_PATH))
+        conn.row_factory = sqlite3.Row
+        return conn
+    except (sqlite3.OperationalError, OSError, PermissionError):
+        tmp_db = Path("/tmp") / "attrition_analytics.db"
+        tmp_db.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(tmp_db))
+        conn.row_factory = sqlite3.Row
+        return conn
 
 
 def init_database():

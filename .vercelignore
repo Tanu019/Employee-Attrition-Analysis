@@ -1,0 +1,17 @@
+.git
+.github
+.venv
+venv/
+ENV/
+.pytest_cache
+tests/
+app.py
+src/modules/
+styles/
+docs/
+*.md
+dataset_profile_raw.json
+inspect_dataset.py
+requirements-dev.txt
+scratch/
+*.log
