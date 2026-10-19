@@ -157,18 +157,18 @@ def load_application_state():
             import os
             if os.environ.get("VERCEL"):
                 perm_records = [
-                    {"Feature": "Over Time", "Importance_Mean": 0.0812, "Importance_Std": 0.0121},
-                    {"Feature": "Monthly Salary", "Importance_Mean": 0.0654, "Importance_Std": 0.0094},
-                    {"Feature": "Total Working Years", "Importance_Mean": 0.0541, "Importance_Std": 0.0082},
-                    {"Feature": "Years At Company", "Importance_Mean": 0.0489, "Importance_Std": 0.0075},
-                    {"Feature": "Burnout Score", "Importance_Mean": 0.0452, "Importance_Std": 0.0071},
-                    {"Feature": "Job Role", "Importance_Mean": 0.0423, "Importance_Std": 0.0068},
-                    {"Feature": "Age", "Importance_Mean": 0.0387, "Importance_Std": 0.0059},
-                    {"Feature": "Years With Curr Manager", "Importance_Mean": 0.0345, "Importance_Std": 0.0051},
-                    {"Feature": "Distance From Home", "Importance_Mean": 0.0312, "Importance_Std": 0.0048},
-                    {"Feature": "Work Life Balance", "Importance_Mean": 0.0289, "Importance_Std": 0.0043},
-                    {"Feature": "Stock Option Level", "Importance_Mean": 0.0245, "Importance_Std": 0.0039},
-                    {"Feature": "Job Satisfaction", "Importance_Mean": 0.0212, "Importance_Std": 0.0035}
+                    {"Feature": "Overtime Burden", "Importance_Mean": 0.0812, "Importance_Std": 0.0121},
+                    {"Feature": "Monthly Compensation (₹)", "Importance_Mean": 0.0654, "Importance_Std": 0.0094},
+                    {"Feature": "Total Work Experience", "Importance_Mean": 0.0541, "Importance_Std": 0.0082},
+                    {"Feature": "Tenure at SnackRush", "Importance_Mean": 0.0489, "Importance_Std": 0.0075},
+                    {"Feature": "Burnout Risk Index", "Importance_Mean": 0.0452, "Importance_Std": 0.0071},
+                    {"Feature": "Job Role / Function", "Importance_Mean": 0.0423, "Importance_Std": 0.0068},
+                    {"Feature": "Age Cohort", "Importance_Mean": 0.0387, "Importance_Std": 0.0059},
+                    {"Feature": "Years with Current Manager", "Importance_Mean": 0.0345, "Importance_Std": 0.0051},
+                    {"Feature": "Commute Distance (km)", "Importance_Mean": 0.0312, "Importance_Std": 0.0048},
+                    {"Feature": "Work-Life Balance Rating", "Importance_Mean": 0.0289, "Importance_Std": 0.0043},
+                    {"Feature": "Stock Option Grant Level", "Importance_Mean": 0.0245, "Importance_Std": 0.0039},
+                    {"Feature": "Job Satisfaction Rating", "Importance_Mean": 0.0212, "Importance_Std": 0.0035}
                 ]
             else:
                 perm_df = compute_permutation_importance_metrics(pipes["Random Forest"], X_test, y_test, top_n=12)

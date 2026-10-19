@@ -147,15 +147,11 @@ class AttritionApp {
     setInterval(update, 60000);
   }
 
-  // Dynamic time-based greeting for Student Workspace
+  // Platform Title Greeting
   initDynamicGreeting() {
     const el = document.getElementById('overview-greeting-text');
     if (!el) return;
-    const hour = new Date().getHours();
-    let timeGreeting = 'Good Evening';
-    if (hour >= 5 && hour < 12) timeGreeting = 'Good Morning';
-    else if (hour >= 12 && hour < 17) timeGreeting = 'Good Afternoon';
-    el.textContent = `${timeGreeting}, Tanu Chaudhary`;
+    el.textContent = 'Welcome to Attrition Lens | SnackRush Operations';
   }
 
   // Global keyboard shortcuts & modal backdrop handlers
@@ -2468,8 +2464,37 @@ class AttritionApp {
 
   renderExplainabilityChart(data) {
     if (data.permutation_importance && document.getElementById('chart-permutation-importance')) {
+      const friendlyFeatureMap = {
+        'Over Time': 'Overtime Burden',
+        'Overtime': 'Overtime Burden',
+        'Monthly Income': 'Monthly Compensation (₹)',
+        'Monthly Salary': 'Monthly Compensation (₹)',
+        'Monthlysalaryinr': 'Monthly Compensation (₹)',
+        'Total Working Years': 'Total Work Experience (Yrs)',
+        'Totalworkingyears': 'Total Work Experience (Yrs)',
+        'Years At Company': 'Tenure at SnackRush (Yrs)',
+        'Yearsatcompany': 'Tenure at SnackRush (Yrs)',
+        'Distance From Home': 'Commute Distance (km)',
+        'Distancefromhomekm': 'Commute Distance (km)',
+        'Years With Curr Manager': 'Years with Current Manager',
+        'Yearswithcurrmanager': 'Years with Current Manager',
+        'Years In Current Role': 'Years in Current Role',
+        'Yearsincurrentrole': 'Years in Current Role',
+        'Years Since Last Promotion': 'Years Since Promotion',
+        'Yearssincelastpromotion': 'Years Since Promotion',
+        'Job Role': 'Job Role / Function',
+        'Jobrole': 'Job Role / Function',
+        'Stock Option Level': 'Stock Option Grant Level',
+        'Stockoptionlevel': 'Stock Option Grant Level',
+        'Job Satisfaction': 'Job Satisfaction Rating',
+        'Jobsatisfaction': 'Job Satisfaction Rating',
+        'Work Life Balance': 'Work-Life Balance Rating',
+        'Worklifebalance': 'Work-Life Balance Rating',
+        'Burnout Score': 'Burnout Risk Index',
+        'Burnoutscore': 'Burnout Risk Index'
+      };
       const topFeats = [...data.permutation_importance].reverse();
-      const names = topFeats.map(f => f.Feature);
+      const names = topFeats.map(f => friendlyFeatureMap[f.Feature] || f.Feature);
       const imps = topFeats.map(f => f.Importance_Mean);
 
       const pData = [{
