@@ -10,6 +10,7 @@ import math
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+from contextlib import asynccontextmanager
 import joblib
 import numpy as np
 import pandas as pd
@@ -76,23 +77,6 @@ from src.reporting import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("AttritionServer")
 
-app = FastAPI(
-    title="Employees Attrition Analysis API",
-    description="HR Decision Support & Machine Learning System",
-    version="2.0.0"
-)
-
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Gzip compression for fast network payloads
-app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Global in-memory cache for models & evaluations
 APP_CACHE: Dict[str, Any] = {
@@ -155,7 +139,9 @@ def load_application_state():
             APP_CACHE["feature_cols"] = list(X.columns)
 
             import os
-            if os.environ.get("VERCEL"):
+            if APP_CACHE.get("permutation_importance"):
+                perm_records = APP_CACHE["permutation_importance"]
+            elif os.environ.get("VERCEL"):
                 perm_records = [
                     {"Feature": "Overtime Burden", "Importance_Mean": 0.0812, "Importance_Std": 0.0121},
                     {"Feature": "Monthly Compensation (₹)", "Importance_Mean": 0.0654, "Importance_Std": 0.0094},
@@ -185,9 +171,31 @@ def load_application_state():
             logger.error(f"Error computing initial model evaluation: {e}")
 
 
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     load_application_state()
+    yield
+
+
+app = FastAPI(
+    title="Employees Attrition Analysis API",
+    description="HR Decision Support & Machine Learning System",
+    version="2.0.0",
+    lifespan=lifespan
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Gzip compression for fast network payloads
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 
 
 # -------------------------------------------------------------
