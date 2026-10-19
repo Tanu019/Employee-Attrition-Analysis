@@ -1618,6 +1618,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.get("/")
 @app.get("/landing")
+@app.get("/server.py")
 def serve_landing_page():
     """Serve the cinematic company introduction landing page."""
     landing_file = STATIC_DIR / "landing.html"
